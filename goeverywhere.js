@@ -189,7 +189,7 @@ function process_map_display()
 
       var tile_southEast_lat = tile_southWest_lat;
       var tile_northWest_lat = tile_northEast_lat;
-      var url = 'haveibeenhere.cgi?';
+      var url = 'get_points.cgi?';
       
       url += 'min_lon=' + tile_northWest_lon;
       url += '&';
@@ -256,15 +256,6 @@ function process_tile_response(data,textStatus,xhr)
   
   var bottomCenter = new google.maps.LatLng(tile_southEast_lat, ( data.min_lon + data.max_lon) / 2);
 
-  // console.log('tile_northEast_lat: ' + tile_northEast_lat);
-  // console.log('tile_northEast_lon: ' + tile_northEast_lon);
-  // console.log('tile_northWest_lat: ' + tile_northWest_lat);
-  // console.log('tile_northWest_lon: ' + tile_northWest_lon);
-  // console.log('tile_southWest_lat: ' + tile_southWest_lat);
-  // console.log('tile_southWest_lon: ' + tile_southWest_lon);
-  // console.log('tile_northEast_lat: ' + tile_northEast_lat);
-  // console.log('tile_northEast_lon: ' + tile_northEast_lon);
-
   // Construct the polygon
   // Note that we don't specify an array or arrays, but instead just
   // a simple array of LatLngs in the paths property
@@ -278,7 +269,18 @@ function process_tile_response(data,textStatus,xhr)
     tooltip: "A tooltip"
   });
 
-  tile.setMap(gMap);
+  //tile.setMap(gMap);
+
+  var points = data.points;
+  var heatmapData = [];
+  for(var i = 0 ; i < points.length ; i++) 
+  {
+    heatmapData[heatmapData.length] = new google.maps.LatLng(points[i].loc.coordinates[1], points[i].loc.coordinates[0]);
+  }
+  var heatmap = new google.maps.visualization.HeatmapLayer({
+        data: heatmapData
+        });
+  heatmap.setMap(gMap);
 
   google.maps.event.addListener(tile, 'mousemove', function(event) { update_pointer_info(event, current_tile_count+1, data.count); } );
 
