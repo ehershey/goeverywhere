@@ -2,6 +2,7 @@
 from bson import json_util
 import cgitb ; cgitb.enable()
 import cgi
+import datetime
 import hashlib
 import logging
 import json
@@ -16,6 +17,10 @@ CACHE_POSITIVE_AGE = 60 * 60 * 24 * 90
 #
 CACHE_NEGATIVE_AGE = 60 * 60 
 
+# minimum time span in milliseconds between points for new point to be included
+
+MINIMUM_POINT_DELTA_MILLIS = 30000
+
 
 logging.basicConfig(level=logging.DEBUG,
   format='%(relativeCreated)d %(asctime)s %(name)-12s %(levelname)-8s %(message)s', 
@@ -25,8 +30,9 @@ logging.basicConfig(level=logging.DEBUG,
 
 logging.debug("starting")
 
-
 cache_max_age = 0
+
+min_point_delta = datetime.timedelta(microseconds=1000*MINIMUM_POINT_DELTA_MILLIS)
 
 
 client = MongoClient()
@@ -49,12 +55,20 @@ logging.debug("read form data")
 # sql = "SELECT * FROM gps_log WHERE longitude > %s AND longitude < %s AND latitude > %s AND latitude < %s LIMIT 1" \
   # % ( min_lon, max_lon, min_lat, max_lat )
 query = {"loc": {"$geoIntersects": { "$geometry": { "type": "Polygon", "coordinates": [ [ [ float(min_lon), float(min_lat) ], [ float(min_lon), float(max_lat) ], [ float(max_lon), float(max_lat) ], [ float(max_lon), float(min_lat) ], [ float(min_lon), float(min_lat) ] ] ]}}}}
+sort_criteria = "entry_date"
 logging.debug("query: %s" % json.dumps(query))
+logging.debug("sort_criteria: %s" % json.dumps(sort_criteria))
 
-count = gps_log.find(query).count()
+count = 0;
 points = []
-for point in gps_log.find(query):
-  points.append(point)
+last_included_entry_date = None
+for point in gps_log.find(query).sort(sort_criteria):
+  count = count + 1
+  if last_included_entry_date == None or (point['entry_date'] - last_included_entry_date) > min_point_delta:
+    points.append(point)
+    last_included_entry_date = point['entry_date']
+  else:
+    logging.debug("skipping point because not (%s - %s) > %s / %s > %s", point['entry_date'], last_included_entry_date, min_point_delta, (point['entry_date'] - last_included_entry_date), min_point_delta)
 
 response =  {
   'min_lon': min_lon,
