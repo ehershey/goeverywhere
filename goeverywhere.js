@@ -85,6 +85,7 @@ function position_handler(position)
 }
 
 var gobjDisplayedTiles = new Object();
+var gobjDisplayedHeatmaps = new Object();
 
 function handle_bounds_changed()
 {
@@ -168,6 +169,19 @@ function process_map_display()
     console.log('tile_count..: ' + tile_count);
   }
 
+  for(rid in gobjDisplayedHeatmaps)
+  {
+    if(gobjDisplayedHeatmaps[rid])
+    {
+      gobjDisplayedHeatmaps[rid].setMap(null);
+      delete gobjDisplayedHeatmaps[rid];
+      heatmap_count--;
+      console.log('heatmap_count--: ' + heatmap_count);
+    }
+    console.log('heatmap_count..: ' + heatmap_count);
+  }
+
+
   var tile_index = 0;
   for(var i = 0 ; i < tiles_across ; i++)
   {
@@ -227,6 +241,7 @@ function process_tile_response(data,textStatus,xhr)
   var current_tile_count = tile_count;
   draw_visualization(tile_count, total_tiles, data.setsize, data.bound_string, data.count);
   if(gobjDisplayedTiles[data.rid]) return;
+  if(gobjDisplayedHeatmaps[data.rid]) return;
   if(!data.count) return;
   console.log('continuing after new_view check and cache check and count check in process_tile_response');
 
@@ -285,8 +300,11 @@ function process_tile_response(data,textStatus,xhr)
   google.maps.event.addListener(tile, 'mousemove', function(event) { update_pointer_info(event, current_tile_count+1, data.count); } );
 
   gobjDisplayedTiles[data.rid] = tile;
+  gobjDisplayedHeatmaps[data.rid] = heatmap;
   tile_count++;
+  heatmap_count++;
   console.log('tile_count++: ' + tile_count);
+  console.log('heatmap_count++: ' + heatmap_count);
   var total_tiles = tiles_across * tiles_down;
   draw_visualization(tile_count, total_tiles, data.setsize, data.bound_string);
 }
