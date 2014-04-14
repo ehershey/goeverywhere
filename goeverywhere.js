@@ -23,6 +23,7 @@ var center_latitude;
 var bounds_change_timeout_millis = 500;
 
 var tile_count = 0;
+var heatmap_count = 0;
 
 var initial_zoom = default_zoom;
 var initial_center_longitude = default_center_longitude;
