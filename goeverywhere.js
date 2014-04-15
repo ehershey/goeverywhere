@@ -348,7 +348,7 @@ function draw_visualization(hit_tiles, total_tiles, setsize, bound_string, count
 
   // Create and draw the visualization.
   new google.visualization.PieChart(document.getElementById('visualization')).
-    draw(data, {title:"Coverage of current view (" + gVisibleHits + " points in view of " + setsize + " total)", colors: ['red','green'], 
+    draw(data, {title:"Estimated coverage of current view (" + gVisibleHits + " points in view of " + setsize + " total)", colors: ['red','green'], 
                 "backgroundColor": 'transparent', pieSliceBorderColor: "blue"   });
 }
 
