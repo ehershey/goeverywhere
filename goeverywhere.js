@@ -65,7 +65,6 @@ function initialize() {
     navigator.geolocation.getCurrentPosition(position_handler, position_handler,  {maximumAge:600000, timeout:10000});
   }
 
-
 }
 
 function position_handler(position)
@@ -96,7 +95,7 @@ function handle_bounds_changed()
     if(current_bounds.equals(bounds_changed_bounds))
     {
       save_map_state();
-      process_map_display();
+      // process_map_display();
     }
     else
     {
@@ -105,7 +104,10 @@ function handle_bounds_changed()
 
   }
   setTimeout(maybe_process_map_display, bounds_change_timeout_millis);
+}
 
+function update_button_onclick() {
+  process_map_display()
 }
 
 function process_map_display() 
