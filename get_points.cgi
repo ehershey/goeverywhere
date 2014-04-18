@@ -46,6 +46,12 @@ min_lat = form.getfirst('min_lat','')
 max_lon = form.getfirst('max_lon','')
 max_lat = form.getfirst('max_lat','')
 
+from_string = form.getfirst('from','')
+to_string = form.getfirst('to','')
+
+from_datetime = datetime.datetime.strptime(from_string, "%m/%d/%Y")
+to_datetime = datetime.datetime.strptime(to_string, "%m/%d/%Y")
+
 # bounds of map displayed when tile info was requested
 #
 bound_string = form.getfirst('bound_string','')
@@ -54,10 +60,10 @@ logging.debug("read form data")
 
 # sql = "SELECT * FROM gps_log WHERE longitude > %s AND longitude < %s AND latitude > %s AND latitude < %s LIMIT 1" \
   # % ( min_lon, max_lon, min_lat, max_lat )
-query = {"loc": {"$geoIntersects": { "$geometry": { "type": "Polygon", "coordinates": [ [ [ float(min_lon), float(min_lat) ], [ float(min_lon), float(max_lat) ], [ float(max_lon), float(max_lat) ], [ float(max_lon), float(min_lat) ], [ float(min_lon), float(min_lat) ] ] ]}}}}
+query = {"loc": {"$geoIntersects": { "$geometry": { "type": "Polygon", "coordinates": [ [ [ float(min_lon), float(min_lat) ], [ float(min_lon), float(max_lat) ], [ float(max_lon), float(max_lat) ], [ float(max_lon), float(min_lat) ], [ float(min_lon), float(min_lat) ] ] ]}}}, "entry_date": {"$gte": from_datetime, "$lt": to_datetime}}
 sort_criteria = "entry_date"
-logging.debug("query: %s" % json.dumps(query))
-logging.debug("sort_criteria: %s" % json.dumps(sort_criteria))
+logging.debug("query: %s" % json.dumps(query, default = json_util.default))
+logging.debug("sort_criteria: %s" % json.dumps(sort_criteria, default = json_util.default))
 
 count = 0;
 points = []

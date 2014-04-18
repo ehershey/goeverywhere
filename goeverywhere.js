@@ -67,15 +67,33 @@ function initialize() {
 
 }
 
+function clearmap_button_onclick()
+{
+  clearMap(); 
+}
+
+
+function locateme_button_onclick()
+{
+    if(!navigator.geolocation) {
+      display_error("Your browser doesn't support geolocation");
+    }
+    navigator.geolocation.getCurrentPosition(position_handler, position_handler,  {maximumAge:600000, timeout:10000});
+}
+function display_error(msg)
+{
+  $( "#dialog-message-text" ).html(msg);
+  $( "#dialog-message" ).dialog({ modal: true, buttons: { Ok: function() { $( this ).dialog( "close" ); } } });
+}
+
 function position_handler(position)
 {
   if(position.message)
   {
-     alert('geolocation error : ' + position.message);
+     display_error('geolocation error : ' + position.message);
   }
   else
   {
-    // alert('position_handler called: ' + position.coords);
     if(position && position.coords)
     {
         initialLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
@@ -160,30 +178,7 @@ function process_map_display()
   // sw lon < ne lon
   //
 
-  for(rid in gobjDisplayedTiles)
-  {
-    if(gobjDisplayedTiles[rid])
-    {
-      gobjDisplayedTiles[rid].setMap(null);
-      delete gobjDisplayedTiles[rid];
-      tile_count--;
-      console.log('tile_count--: ' + tile_count);
-    }
-    console.log('tile_count..: ' + tile_count);
-  }
-
-  for(rid in gobjDisplayedHeatmaps)
-  {
-    if(gobjDisplayedHeatmaps[rid])
-    {
-      gobjDisplayedHeatmaps[rid].setMap(null);
-      delete gobjDisplayedHeatmaps[rid];
-      heatmap_count--;
-      console.log('heatmap_count--: ' + heatmap_count);
-    }
-    console.log('heatmap_count..: ' + heatmap_count);
-  }
-
+  clearMap();
 
   var tile_index = 0;
   for(var i = 0 ; i < tiles_across ; i++)
@@ -208,6 +203,10 @@ function process_map_display()
       var tile_northWest_lat = tile_northEast_lat;
       var url = 'get_points.cgi?';
       
+      url += 'from=' + $("#from").val();
+      url += '&';
+      url += 'to=' + $("#to").val();
+      url += '&';
       url += 'min_lon=' + tile_northWest_lon;
       url += '&';
       url += 'max_lon=' + tile_northEast_lon;
@@ -234,7 +233,31 @@ function process_map_display()
 
 }
 
+function clearMap() {
+  for(rid in gobjDisplayedTiles)
+  {
+    if(gobjDisplayedTiles[rid])
+    {
+      gobjDisplayedTiles[rid].setMap(null);
+      delete gobjDisplayedTiles[rid];
+      tile_count--;
+      console.log('tile_count--: ' + tile_count);
+    }
+    console.log('tile_count..: ' + tile_count);
+  }
 
+  for(rid in gobjDisplayedHeatmaps)
+  {
+    if(gobjDisplayedHeatmaps[rid])
+    {
+      gobjDisplayedHeatmaps[rid].setMap(null);
+      delete gobjDisplayedHeatmaps[rid];
+      heatmap_count--;
+      console.log('heatmap_count--: ' + heatmap_count);
+    }
+    console.log('heatmap_count..: ' + heatmap_count);
+  }
+}
 
 function process_tile_response(data,textStatus,xhr)
 {
@@ -242,7 +265,6 @@ function process_tile_response(data,textStatus,xhr)
   increment_progressbar();
   var total_tiles = tiles_across * tiles_down;
   var current_tile_count = tile_count;
-  draw_visualization(tile_count, total_tiles, data.setsize, data.bound_string, data.count);
   if(gobjDisplayedTiles[data.rid]) return;
   if(gobjDisplayedHeatmaps[data.rid]) return;
   if(!data.count) return;
@@ -309,7 +331,6 @@ function process_tile_response(data,textStatus,xhr)
   console.log('tile_count++: ' + tile_count);
   console.log('heatmap_count++: ' + heatmap_count);
   var total_tiles = tiles_across * tiles_down;
-  draw_visualization(tile_count, total_tiles, data.setsize, data.bound_string);
 }
 
 function increment_progressbar()
@@ -338,22 +359,6 @@ function am_in_new_view(bound_string)
   if(current_bounds.toString() === bound_string) return false;
   return true;
 }
-function draw_visualization(hit_tiles, total_tiles, setsize, bound_string, count) {
-  if(am_in_new_view(bound_string)) return;
-  if(count) gVisibleHits += count;
-  // Create and populate the data table.
-  var data = google.visualization.arrayToDataTable([
-    ['Status', 'Hit tiles'],
-    ['Missing', total_tiles - hit_tiles],
-    ['Been there', hit_tiles]
-  ]);
-
-  // Create and draw the visualization.
-  new google.visualization.PieChart(document.getElementById('visualization')).
-    draw(data, {title:"Estimated coverage of current view (" + gVisibleHits + " points in view of " + setsize + " total)", colors: ['red','green'], 
-                "backgroundColor": 'transparent', pieSliceBorderColor: "blue"   });
-}
-
 // called when url changes with "query string" after the hash 
 // 
 function history_callback(query_string)
@@ -393,6 +398,14 @@ function history_callback(query_string)
     {
       center_lng = value;
     }
+    else if(key == 'from')
+    {
+      $("#from").val(value);
+    }
+    else if(key == 'to')
+    {
+      $("#to").val(value);
+    }
     if(center_lng && center_lat) 
     {
       if(gMap)
@@ -419,7 +432,7 @@ function save_map_state()
   var current_zoom = gMap.getZoom();
   var current_center = gMap.getCenter();
 
-  var query_string = "z=" + current_zoom + ';cla=' + current_center.lat() + ';clo=' + current_center.lng();
+  var query_string = "z=" + current_zoom + ';cla=' + current_center.lat() + ';clo=' + current_center.lng() + ';from=' + $("#from").val() + ';to=' + $("#to").val();
 
   $.history.load(query_string);
 }
@@ -443,12 +456,30 @@ function update_pointer_info(event, tile_number, hit_count)
   $("#pointer_info").html(s); 
 }
 
-// generate unique identifier for current zoom and position, for comparing 
-// map views at different points in time, like when requests
-// 
-function get_view_uid() 
-{
-}
+ $(function() {
+    $( "#from" ).datepicker({
+      defaultDate: "-2m",
+      changeMonth: true,
+      numberOfMonths: 1,
+      maxDate: 0,
+      onClose: function( selectedDate ) {
+        $( "#to" ).datepicker( "option", "minDate", selectedDate );
+        save_map_state();
+      }
+    });
+    $( "#to" ).datepicker({
+      defaultDate: "today",
+      changeMonth: true,
+      numberOfMonths: 1,
+      maxDate: 0,
+      onClose: function( selectedDate ) {
+        $( "#from" ).datepicker( "option", "maxDate", selectedDate );
+        save_map_state();
+      }
+    });
 
+    $("#from").datepicker("setDate",$("#from").datepicker("option","defaultDate"));
+    $("#to").datepicker("setDate",$("#to").datepicker("option","defaultDate"));
+  });
 google.maps.event.addDomListener(window, 'load', initialize);
 
