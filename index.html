@@ -8,10 +8,14 @@
     #controls { 
       /* width: 800px;
       height: 400px; */
-      width: 100%;
       height: 10%;
+      float: left;
     }
  
+    #map_info { 
+      float: right;
+    }
+
     #map_canvas { 
       /* width: 800px;
       height: 400px; */
@@ -59,15 +63,22 @@
     <button onclick="update_button_onclick();" >Update</button>
     <button onclick="locateme_button_onclick();" >Locate Me!</button>
     <button onclick="clearmap_button_onclick();" >Clear Map</button>
+
   </div>
+  <div id="map_info" title="Map Info">
+    <p>
+      <span id="map_info_text"/>
+    </p>
+  </div>
+
   <div id="map_canvas" ></div>
   <div id="progressbar"></div>
   <div id="visualization"></div>
   <div id="pointer_info"></div>
-  <div id="dialog-message" title="Error Message">
-  <p>
-    <span id="dialog-message-text"/>
-  </p>
-</div>
+  <div id="dialog_message" title="Error Message">
+    <p>
+      <span id="dialog_message_text"/>
+    </p>
+  </div>
 </body>
 </html>

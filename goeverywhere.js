@@ -9,8 +9,11 @@ var default_zoom = 13
 
 // how many tiles to divide map into
 //
-var tiles_across = 4;
-var tiles_down = 4;
+var tiles_across = 1;
+var tiles_down = 1;
+
+// Milliseconds between points required to start new tracks
+var NEW_TRACK_GAP_MILLIS = 150000;
 
 // home
 //
@@ -24,6 +27,7 @@ var bounds_change_timeout_millis = 500;
 
 var tile_count = 0;
 var heatmap_count = 0;
+var line_count = 0;
 
 var initial_zoom = default_zoom;
 var initial_center_longitude = default_center_longitude;
@@ -69,7 +73,7 @@ function initialize() {
 
 function clearmap_button_onclick()
 {
-  clearMap(); 
+  clear_map(); 
 }
 
 
@@ -82,8 +86,8 @@ function locateme_button_onclick()
 }
 function display_error(msg)
 {
-  $( "#dialog-message-text" ).html(msg);
-  $( "#dialog-message" ).dialog({ modal: true, buttons: { Ok: function() { $( this ).dialog( "close" ); } } });
+  $( "#dialog_message_text" ).html(msg);
+  $( "#dialog_message" ).dialog({ modal: true, buttons: { Ok: function() { $( this ).dialog( "close" ); } } });
 }
 
 function position_handler(position)
@@ -104,6 +108,7 @@ function position_handler(position)
 
 var gobjDisplayedTiles = new Object();
 var gobjDisplayedHeatmaps = new Object();
+var gobjDisplayedLines = new Object();
 
 function handle_bounds_changed()
 {
@@ -178,7 +183,7 @@ function process_map_display()
   // sw lon < ne lon
   //
 
-  clearMap();
+  clear_map();
 
   var tile_index = 0;
   for(var i = 0 ; i < tiles_across ; i++)
@@ -233,7 +238,7 @@ function process_map_display()
 
 }
 
-function clearMap() {
+function clear_map() {
   for(rid in gobjDisplayedTiles)
   {
     if(gobjDisplayedTiles[rid])
@@ -257,6 +262,21 @@ function clearMap() {
     }
     console.log('heatmap_count..: ' + heatmap_count);
   }
+
+  for(rid in gobjDisplayedLines)
+  {
+    if(gobjDisplayedLines[rid])
+    {
+      gobjDisplayedLines[rid].setMap(null);
+      delete gobjDisplayedLines[rid];
+      line_count--;
+      console.log('line_count--: ' + line_count);
+    }
+    console.log('line_count..: ' + line_count);
+  }
+
+  $("#map_info_text").html(" ");
+  $("#pointer_info").html(" "); 
 }
 
 function process_tile_response(data,textStatus,xhr)
@@ -265,6 +285,7 @@ function process_tile_response(data,textStatus,xhr)
   increment_progressbar();
   var total_tiles = tiles_across * tiles_down;
   var current_tile_count = tile_count;
+  draw_visualization(tile_count, total_tiles, data.setsize, data.bound_string, data.count, data.from, data.to);
   if(gobjDisplayedTiles[data.rid]) return;
   if(gobjDisplayedHeatmaps[data.rid]) return;
   if(!data.count) return;
@@ -313,13 +334,33 @@ function process_tile_response(data,textStatus,xhr)
 
   var points = data.points;
   var heatmapData = [];
+  var latlngs = []
   for(var i = 0 ; i < points.length ; i++) 
   {
-    heatmapData[heatmapData.length] = new google.maps.LatLng(points[i].loc.coordinates[1], points[i].loc.coordinates[0]);
+
+    // Start new track
+    //
+    if(points[i-1] && (points[i].entry_date['$date'] - points[i-1].entry_date['$date']) >= NEW_TRACK_GAP_MILLIS)
+    {
+      var line = new google.maps.Polyline({
+        path: latlngs,
+        geodesic: true,
+        strokeColor: '#FF0000',
+        strokeOpacity: 1.0,
+        strokeWeight: 2
+      });
+      line.setMap(gMap);
+      latlngs = [];
+      gobjDisplayedLines[points[i].entry_date['$date']] = line;
+      line_count++;
+    }
+    point = new google.maps.LatLng(points[i].loc.coordinates[1], points[i].loc.coordinates[0]);
+    heatmapData[heatmapData.length] = point;
+    latlngs[latlngs.length] = point;
   }
   var heatmap = new google.maps.visualization.HeatmapLayer({
-        data: heatmapData
-        });
+    data: heatmapData
+  });
   heatmap.setMap(gMap);
 
   google.maps.event.addListener(tile, 'mousemove', function(event) { update_pointer_info(event, current_tile_count+1, data.count); } );
@@ -328,9 +369,8 @@ function process_tile_response(data,textStatus,xhr)
   gobjDisplayedHeatmaps[data.rid] = heatmap;
   tile_count++;
   heatmap_count++;
-  console.log('tile_count++: ' + tile_count);
-  console.log('heatmap_count++: ' + heatmap_count);
   var total_tiles = tiles_across * tiles_down;
+  draw_visualization(tile_count, total_tiles, data.setsize, data.bound_string,0,data.from,data.to);
 }
 
 function increment_progressbar()
@@ -456,9 +496,16 @@ function update_pointer_info(event, tile_number, hit_count)
   $("#pointer_info").html(s); 
 }
 
+function draw_visualization(hit_tiles, total_tiles, setsize, bound_string, count, from_string, to_string) {
+    if(am_in_new_view(bound_string)) return;
+    if(count) gVisibleHits += count;
+    var map_info_text = gVisibleHits + " points in view of " + setsize + " total<br/>\nFrom " + from_string + " to " + to_string;
+    $("#map_info_text").html(map_info_text);
+  }
+
  $(function() {
     $( "#from" ).datepicker({
-      defaultDate: "-2m",
+      defaultDate: "2m",
       changeMonth: true,
       numberOfMonths: 1,
       maxDate: 0,

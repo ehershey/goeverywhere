@@ -81,6 +81,8 @@ response =  {
   'min_lat': min_lat,
   'max_lon': max_lon,
   'max_lat': max_lat,
+  'from': from_string,
+  'to': to_string,
 
   'rid': hashlib.md5("%s%s%s%s%s" % ( bound_string, min_lon, max_lon, min_lat, max_lat )).hexdigest(),
   'bound_string': bound_string,
