@@ -207,18 +207,37 @@ function process_map_display()
       var tile_southEast_lat = tile_southWest_lat;
       var tile_northWest_lat = tile_northEast_lat;
       var url = 'get_points.cgi?';
+
+      var min_lon;
+      var max_lon;
+      var min_lat;
+      var max_lat;
+      
+      if($("#adjust_bounds")[0].checked) {
+        min_lon = -80;
+        max_lon = 80;
+        min_lat = -90;
+        max_lat = 90;
+      }
+      else
+      {
+        min_lon = tile_northWest_lon;
+        max_lon = tile_northEast_lon;
+        min_lat = tile_southWest_lat;
+        max_lat = tile_northEast_lat;
+      }
       
       url += 'from=' + $("#from").val();
       url += '&';
       url += 'to=' + $("#to").val();
       url += '&';
-      url += 'min_lon=' + tile_northWest_lon;
+      url += 'min_lon=' + min_lon;
       url += '&';
-      url += 'max_lon=' + tile_northEast_lon;
+      url += 'max_lon=' + max_lon;
       url += '&';
-      url += 'min_lat=' + tile_southWest_lat;
+      url += 'min_lat=' + min_lat;
       url += '&';
-      url += 'max_lat=' + tile_northEast_lat;
+      url += 'max_lat=' + max_lat;
       url += '&';
       url += 'bound_string=' + escape(gMap.getBounds().toString());
       url += '&';
@@ -335,6 +354,7 @@ function process_tile_response(data,textStatus,xhr)
   var points = data.points;
   var heatmapData = [];
   var latlngs = []
+  var bounds = new google.maps.LatLngBounds();
   for(var i = 0 ; i < points.length ; i++) 
   {
 
@@ -355,6 +375,7 @@ function process_tile_response(data,textStatus,xhr)
       line_count++;
     }
     point = new google.maps.LatLng(points[i].loc.coordinates[1], points[i].loc.coordinates[0]);
+    bounds.extend(point);
     heatmapData[heatmapData.length] = point;
     latlngs[latlngs.length] = point;
   }
@@ -362,6 +383,11 @@ function process_tile_response(data,textStatus,xhr)
     data: heatmapData
   });
   heatmap.setMap(gMap);
+  if($("#adjust_bounds")[0].checked)
+  {
+    gMap.fitBounds(bounds);
+  }
+
 
   google.maps.event.addListener(tile, 'mousemove', function(event) { update_pointer_info(event, current_tile_count+1, data.count); } );
 
@@ -505,8 +531,10 @@ function draw_visualization(hit_tiles, total_tiles, setsize, bound_string, count
 
  $(function() {
     $( "#from" ).datepicker({
+      showButtonPanel: true,
       defaultDate: "2m",
       changeMonth: true,
+      changeYear: true,
       numberOfMonths: 1,
       maxDate: 0,
       onClose: function( selectedDate ) {
@@ -515,8 +543,10 @@ function draw_visualization(hit_tiles, total_tiles, setsize, bound_string, count
       }
     });
     $( "#to" ).datepicker({
+      showButtonPanel: true,
       defaultDate: "today",
       changeMonth: true,
+      changeYear: true,
       numberOfMonths: 1,
       maxDate: 0,
       onClose: function( selectedDate ) {
