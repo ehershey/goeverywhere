@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+<!--
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+-->
   <style type="text/css">
     html { height: 100% }
     body { height: 100%; margin: 0px; padding: 0px }
@@ -14,6 +16,7 @@
  
     #map_info { 
       float: right;
+      height: 10%;
     }
 
     #map_canvas { 
@@ -26,6 +29,7 @@
   <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
   <style>
     .ui-progressbar {
+      display:none;
       position: absolute;
       bottom: 1%;
       left: 1%;
@@ -56,14 +60,16 @@
 </head>
 <body>
   <div id="controls">
-    <label for="from">From</label>
-    <input type="text" id="from" name="from">
-    <label for="to">to</label>
-    <input type="text" id="to" name="to">
-    <button onclick="update_button_onclick();" >Update</button>
-    <button onclick="locateme_button_onclick();" >Locate Me!</button>
-    <button onclick="clearmap_button_onclick();" >Clear Map</button>
-
+    <form onsubmit="return false;">
+      <label for="from">From</label>
+      <input type="text" id="from" name="from" size="10">
+      <label for="to">to</label>
+      <input type="text" id="to" name="to" size="10">
+      <input type="checkbox" id="adjust_bounds" name="adjust_bounds">Update map view to show all matching date points<br/>
+      <button onclick="update_button_onclick();" >Update</button>
+      <button onclick="locateme_button_onclick();" >Locate Me!</button>
+      <button onclick="clearmap_button_onclick();" >Clear Map</button>
+    </form>
   </div>
   <div id="map_info" title="Map Info">
     <p>
