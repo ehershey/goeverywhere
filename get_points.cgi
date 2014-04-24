@@ -52,6 +52,10 @@ to_string = form.getfirst('to','')
 from_datetime = datetime.datetime.strptime(from_string, "%m/%d/%Y")
 to_datetime = datetime.datetime.strptime(to_string, "%m/%d/%Y")
 
+# Make "to" date inclusive of the entire day
+#
+to_datetime = to_datetime + datetime.timedelta(1);
+
 # bounds of map displayed when tile info was requested
 #
 bound_string = form.getfirst('bound_string','')
