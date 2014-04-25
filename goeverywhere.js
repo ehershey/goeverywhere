@@ -532,7 +532,7 @@ function draw_visualization(hit_tiles, total_tiles, setsize, bound_string, count
  $(function() {
     $( "#from" ).datepicker({
       showButtonPanel: true,
-      defaultDate: "2m",
+      defaultDate: "-1",
       changeMonth: true,
       changeYear: true,
       numberOfMonths: 1,
