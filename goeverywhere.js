@@ -102,6 +102,12 @@ function position_handler(position)
     {
         initialLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
         gMap.setCenter(initialLocation);
+        var marker = new google.maps.Marker
+        ({
+          position: initialLocation,
+          map: gMap,
+          title:"Current Location"
+        });
     }
   }
 }
