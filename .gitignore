@@ -30,3 +30,6 @@ unit_report.html
 
 .htpasswd
 .htaccess
+
+.DS_Store
+*/.DS_Store
