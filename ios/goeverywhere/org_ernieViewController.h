@@ -6,10 +6,11 @@
 //  Copyright (c) 2014 Ernie Hershey. All rights reserved.
 //
 
+#import <GoogleMaps/GoogleMaps.h>
 #import <UIKit/UIKit.h>
 
-@interface org_ernieViewController : UIViewController<NSURLConnectionDelegate>
+@interface org_ernieViewController : UIViewController<NSURLConnectionDelegate,GMSMapViewDelegate>
 {
-    NSMutableData *_responseData;
 }
+
 @end

@@ -16,6 +16,8 @@
 
 @implementation org_ernieViewController {
     GMSMapView *mapView_;
+    NSMutableData *_responseData;
+    NSURLConnection *_connection;
 }
 
 - (void)viewDidLoad
@@ -35,34 +37,54 @@
 
     NSLog(@"User's location: %@", mapView_.myLocation);
 
+    mapView_.delegate = self;
+
     self.view = mapView_;
     
-    // Creates a marker in the center of the map.
-    GMSMarker *marker = [[GMSMarker alloc] init];
-    marker.position = CLLocationCoordinate2DMake(-33.86, 151.20);
-    marker.title = @"Sydney";
-    marker.snippet = @"Australia";
-    marker.map = mapView_;
-	// Do any additional setup after loading the view, typically from a nib.
+ 	// Do any additional setup after loading the view, typically from a nib.
     
-    GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:mapView_.projection.visibleRegion];
-    
-
-    NSLog(@"\n%@,%@\n",[NSNumber numberWithDouble:bounds.northEast.latitude],[NSNumber numberWithDouble:bounds.northEast.longitude ]);
-    // Create the request.
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://goeverywhere.ernie.org/get_points.cgi?from=1/1/2001&to=1/1/2020&min_lon=%@&max_lon=%@&min_lat=%@&max_lat=%@", [NSNumber numberWithDouble:bounds.southWest.longitude], [NSNumber numberWithDouble:bounds.northEast.longitude],  [NSNumber numberWithDouble:bounds.southWest.latitude], [NSNumber numberWithDouble:bounds.northEast.latitude] ]]];
-    
-    // Fire request
-    [NSURLConnection connectionWithRequest:request delegate:self];
-    
-
-
+ 
 }
 
+- (void)makeNewServerRequest
+{
+    NSLog(@"clearing map and cancelling connection");
+    [mapView_ clear];
+    [_connection cancel];
+
+    GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:mapView_.projection.visibleRegion];
+    
+    // Create the request.
+    NSString *url = [NSString stringWithFormat:@"http://goeverywhere.ernie.org/get_points.cgi?from=1/1/2001&to=1/1/2020&min_lon=%@&max_lon=%@&min_lat=%@&max_lat=%@", [NSNumber numberWithDouble:bounds.southWest.longitude], [NSNumber numberWithDouble:bounds.northEast.longitude],  [NSNumber numberWithDouble:bounds.southWest.latitude], [NSNumber numberWithDouble:bounds.northEast.latitude] ];
+    NSLog(@"makeNewServerRequest() called. url: %@",url);
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+    
+    // Fire request
+    // [NSURLConnection connectionWithRequest:request delegate:self];
+    
+    _connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+    NSLog(@"didReceiveMemoryWarning() called");
+}
+
+
+#pragma mark - GMSMapViewDelegate
+
+- (void)mapView:(GMSMapView *)mapView willMove:(BOOL)gesture {
+    NSLog(@"clearing map and cancelling connection");
+    [mapView clear];
+    [_connection cancel];
+}
+
+- (void)mapView:(GMSMapView *)mapView
+idleAtCameraPosition:(GMSCameraPosition *)cameraPosition {
+    NSLog(@"idleAtCameraPosition() called");
+    [self makeNewServerRequest];
 }
 
 #pragma mark NSURLConnection Delegate Methods
@@ -91,8 +113,32 @@
     // You can parse the stuff in your instance variable now
     ;
 
-    NSLog(@"NSURLConnection connectionDidFinishLoading() called: %@", [[NSString alloc] initWithData:_responseData encoding:NSASCIIStringEncoding]);
+    NSLog(@"NSURLConnection connectionDidFinishLoading() called");
+    
+    NSError *error = nil;
+    NSDictionary *results = [NSJSONSerialization
+                 JSONObjectWithData:_responseData
+                 options:0
+                 error:&error];
+    NSArray* points = [results objectForKey:@"points"];
 
+    GMSMutablePath *path = [GMSMutablePath path];
+    
+    for(int n = 0; n < [points count]; n++)
+    {
+        NSDictionary* point = [points objectAtIndex:n];
+        NSDictionary* loc = [point objectForKey:@"loc"];
+        NSArray* coordinates = [loc objectForKey:@"coordinates"];
+        
+        double longitude = [[coordinates objectAtIndex:0] doubleValue];
+        double latitude = [[coordinates objectAtIndex:1] doubleValue];
+
+        [path addLatitude:latitude longitude:longitude]; // Sydney
+    }
+    GMSPolyline *polyline = [GMSPolyline polylineWithPath:path];
+    polyline.strokeColor = [UIColor blueColor];
+    polyline.strokeWidth = 5.f;
+    polyline.map = mapView_;
     
 }
 
@@ -102,5 +148,6 @@
     NSLog(@"NSURLConnection didFailWithError() called: %@", error);
 
 }
+
 
 @end
