@@ -69,6 +69,38 @@ function initialize() {
     navigator.geolocation.getCurrentPosition(position_handler, position_handler,  {maximumAge:600000, timeout:10000});
   }
 
+  var url = "get_stats.cgi";
+  // $.get( url, null, process_tile_response, "json");
+  $.ajax({
+    dataType: "json",
+    url: url,
+    success: process_stats_response,
+    error: function(xhr) { alert('Error!  Status = ' + xhr.status + '(' + url + ')'); }
+  });
+
+}
+
+var stats_data;
+function process_stats_response(data, textStatus, xhr) { 
+  stats_data = data;
+  stats_data.oldest_date = new Date(data.oldest_point_timestamp * 1000);
+  stats_data.newest_date = new Date(data.newest_point_timestamp * 1000);
+  stats_data.formated_oldest_date = $.format.date(stats_data.oldest_date,"MM/dd/yyyy") ;
+  stats_data.formated_newest_date = $.format.date(stats_data.newest_date,"MM/dd/yyyy") ;
+  $("#all_dates_string").html('(' + stats_data.formated_oldest_date + ' - ' + stats_data.formated_newest_date + ')&nbsp;&nbsp;&nbsp;' + $.number(data.point_count) + ' points');
+        // <a href="#" onclick="select_all_dates();">All Dates (<span id='all_dates_string'>01/01/2001 - 12/12/2012</span>)</a>
+}
+
+function select_all_dates() {
+  $("#from").val(stats_data.formated_oldest_date);
+  $("#to").val(stats_data.formated_newest_date);
+  $("#adjust_bounds").attr('checked', false);
+  save_map_state();
+}
+function select_today() {
+  $("#from").val($.format.date(new Date(),"MM/dd/yyyy"))
+  $("#to").val($.format.date(new Date(),"MM/dd/yyyy"))
+  save_map_state();
 }
 
 function clearmap_button_onclick()
