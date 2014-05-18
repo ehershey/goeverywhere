@@ -103,6 +103,14 @@ function select_today() {
   save_map_state();
 }
 
+function select_7days() {
+  $("#from").val($.format.date(new Date() - 7 * 24 * 60 * 60 * 1000,"MM/dd/yyyy"))
+  $("#to").val($.format.date(new Date(),"MM/dd/yyyy"))
+  save_map_state();
+}
+
+
+
 function clearmap_button_onclick()
 {
   clear_map(); 
