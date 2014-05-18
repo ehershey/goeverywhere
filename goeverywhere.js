@@ -568,7 +568,7 @@ function update_pointer_info(event, tile_number, hit_count)
 function draw_visualization(hit_tiles, total_tiles, setsize, bound_string, count, from_string, to_string) {
     if(am_in_new_view(bound_string)) return;
     if(count) gVisibleHits += count;
-    var map_info_text = gVisibleHits + " points in view of " + setsize + " total<br/>\nFrom " + from_string + " to " + to_string;
+    var map_info_text = $.number(gVisibleHits) + " points in view of " + $.number(setsize) + " total<br/>\nFrom " + from_string + " to " + to_string;
     $("#map_info_text").html(map_info_text);
   }
 
