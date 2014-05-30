@@ -1,4 +1,5 @@
 #!/bin/bash
+export PYTHONPATH=$PYTHONPATH:/home/ernie/Dropbox/Development/Misc:.::
 
 echo "Content-Type: text/plain"
 echo
