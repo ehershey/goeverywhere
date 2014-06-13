@@ -10,7 +10,7 @@ cat >> /tmp/moves-notification.log 2>&1
 
 (
 ~ernie/git/utilities/update_moves_csv.sh  >> /tmp/update_moves_csv.log 2>&1
-~ernie/git/utilities/unit_report_generator.sh  >> /tmp/unit_report.log 2>&1
+~ernie/git/utilities/generate_unit_report.sh  >> /tmp/unit_report.log 2>&1
 ) &
 exec 0>&- # close stdin
 exec 1>&- # close stdout
