@@ -49,7 +49,7 @@ function initialize() {
     value: 0,
     max: 100
   });
-           
+
   $.history.init(history_callback,  { unescape: "/=;&" });
 
   var latlng = new google.maps.LatLng(initial_center_latitude, initial_center_longitude);
@@ -81,7 +81,7 @@ function initialize() {
 }
 
 var stats_data;
-function process_stats_response(data, textStatus, xhr) { 
+function process_stats_response(data, textStatus, xhr) {
   stats_data = data;
   stats_data.oldest_date = new Date(data.oldest_point_timestamp * 1000);
   stats_data.newest_date = new Date(data.newest_point_timestamp * 1000);
@@ -116,7 +116,7 @@ function select_7days() {
 
 function clearmap_button_onclick()
 {
-  clear_map(); 
+  clear_map();
 }
 
 
@@ -167,7 +167,7 @@ var gobjDisplayedLines = new Object();
 function handle_bounds_changed()
 {
   var bounds_changed_bounds = gMap.getBounds();
-  var maybe_process_map_display = function() { 
+  var maybe_process_map_display = function() {
     current_bounds = gMap.getBounds();
     if(current_bounds.equals(bounds_changed_bounds))
     {
@@ -187,7 +187,7 @@ function update_button_onclick() {
   process_map_display()
 }
 
-function process_map_display() 
+function process_map_display()
 {
   gProgressBar.show();
   gProgressBar.progressbar( "value", 0);
@@ -266,7 +266,7 @@ function process_map_display()
       var max_lon;
       var min_lat;
       var max_lat;
-      
+
       if($("#adjust_bounds")[0].checked) {
         min_lon = -80;
         max_lon = 80;
@@ -280,7 +280,7 @@ function process_map_display()
         min_lat = tile_southWest_lat;
         max_lat = tile_northEast_lat;
       }
-      
+
       url += 'from=' + $("#from").val();
       url += '&';
       url += 'to=' + $("#to").val();
@@ -349,7 +349,7 @@ function clear_map() {
   }
 
   $("#map_info_text").html(" ");
-  $("#pointer_info").html(" "); 
+  $("#pointer_info").html(" ");
 }
 
 function process_tile_response(data,textStatus,xhr)
@@ -387,7 +387,7 @@ function process_tile_response(data,textStatus,xhr)
     new google.maps.LatLng(tile_southEast_lat, tile_southEast_lon),
     new google.maps.LatLng(tile_southWest_lat, tile_southWest_lon),
   ];
-  
+
   var bottomCenter = new google.maps.LatLng(tile_southEast_lat, ( data.min_lon + data.max_lon) / 2);
 
   // Construct the polygon
@@ -409,7 +409,7 @@ function process_tile_response(data,textStatus,xhr)
   var heatmapData = [];
   var latlngs = []
   var bounds = new google.maps.LatLngBounds();
-  for(var i = 0 ; i < points.length ; i++) 
+  for(var i = 0 ; i < points.length ; i++)
   {
 
     // Start new track
@@ -456,7 +456,7 @@ function process_tile_response(data,textStatus,xhr)
 function increment_progressbar()
 {
   var total_tiles = tiles_across * tiles_down;
-  // consider each response equal progress, so 
+  // consider each response equal progress, so
   // for each, increment progress by 100 / total tiles
   //
   var old_value = gProgressBar.progressbar("value");
@@ -479,8 +479,8 @@ function am_in_new_view(bound_string)
   if(current_bounds.toString() === bound_string) return false;
   return true;
 }
-// called when url changes with "query string" after the hash 
-// 
+// called when url changes with "query string" after the hash
+//
 function history_callback(query_string)
 {
   if(!query_string)
@@ -526,7 +526,7 @@ function history_callback(query_string)
     {
       $("#to").val(value);
     }
-    if(center_lng && center_lat) 
+    if(center_lng && center_lat)
     {
       if(gMap)
       {
@@ -557,7 +557,7 @@ function save_map_state()
   $.history.load(query_string);
 }
 
-function update_pointer_info(event, tile_number, hit_count) 
+function update_pointer_info(event, tile_number, hit_count)
 {
   var s = ''
   s += "Cursor latitude: " + event.latLng.lat();
@@ -573,7 +573,7 @@ function update_pointer_info(event, tile_number, hit_count)
     s += '<br/>';
     s += "Hits: " + hit_count;
   }
-  $("#pointer_info").html(s); 
+  $("#pointer_info").html(s);
 }
 
 function draw_visualization(hit_tiles, total_tiles, setsize, bound_string, count, from_string, to_string) {
