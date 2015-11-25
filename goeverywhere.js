@@ -3,9 +3,9 @@
 
 // good general center
 //
-var default_center_longitude = -73.979876
-var default_center_latitude = 40.679718
-var default_zoom = 13
+var default_center_longitude = -73.979876;
+var default_center_latitude = 40.679718;
+var default_zoom = 16;
 
 // how many tiles to divide map into
 //
@@ -33,6 +33,7 @@ var initial_zoom = default_zoom;
 var initial_center_longitude = default_center_longitude;
 var initial_center_latitude = default_center_latitude;
 
+
 // How many hits are visible on the map; Tallied in draw_visualization()
 // to display in pie chart text
 //
@@ -42,6 +43,9 @@ var gBoundsStartCountingVisibleHits;
 var gMap;
 
 var gProgressBar;
+
+
+Cookies.set("loaded",1, { expires: 365 });
 
 function initialize() {
   gProgressBar = $( "#progressbar" );
