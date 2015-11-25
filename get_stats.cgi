@@ -23,7 +23,7 @@ db = client.ernie_org
 gps_log = db.gps_log
 
 
-query = {}
+query = {'entry_date': { '$exists': True }}
 limit = 1
 logging.debug("query: %s" % json.dumps(query, default = json_util.default))
 logging.debug("limit: %s" % limit)
