@@ -5,20 +5,32 @@
   <style type="text/css">
     html { height: 100% }
     body { height: 100%; margin: 0px; padding: 0px }
-    #controls { 
-      /* width: 800px;
-      height: 400px; */
-      /* height: 10%; */
-      float: left;
+    #controls {
+      display: none;
+      position: absolute;
+      z-index: 1;
+      top: 100px
     }
 
-    #map_info { 
+    #controls_inner {
+      width: 80%;
+      margin: auto;
+      border: 1px solid black;
+      background: #ffffff;
+    }
+
+    #pointer_info {
+      display: none;
+    }
+
+    #map_info {
       padding-right: 10px;
       float: right;
       height: 10%;
+      display: none;
     }
 
-    #map_canvas { 
+    #map_canvas {
       /* width: 800px;
       height: 400px; */
       width: 100%;
@@ -38,8 +50,9 @@
       position: absolute;
       bottom: 30px;
       left: 10px;
-      width: 400px;
-      height: 300px;
+      /* width: 400px;
+      height: 300px; */
+      z-index: -1;
     }
     #pointer_info {
       float: left;
@@ -61,20 +74,28 @@
 </head>
 <body>
   <div id="controls">
-    <form onsubmit="return false;">
-      <label for="from">From</label>
-      <input type="text" id="from" name="from" size="10">
-      <label for="to">to</label>
-      <input type="text" id="to" name="to" size="10">
-      <input type="checkbox" id="adjust_bounds" name="adjust_bounds" checked>Update map view to show all matching date points<br/>
-      <a href="#" onclick="select_all_dates(); return false;">All Dates <span id='all_dates_string'>01/01/2001 - 12/12/2012</span></a>&nbsp;
-      <a href="#" onclick="select_today(); return false;">Today</a>&nbsp;
-      <a href="#" onclick="select_7days(); return false;">Past week</a>
-      <br/>
-      <button onclick="update_button_onclick();" >Update</button>
-      <button onclick="locateme_button_onclick();" >Locate Me!</button>
-      <button onclick="clearmap_button_onclick();" >Clear Map</button>
-    </form>
+    <div id="controls_inner">
+      <form onsubmit="return false;">
+        <label for="from">From</label>
+        <input type="text" id="from" name="from" size="10">
+        <label for="to">to</label>
+        <input type="text" id="to" name="to" size="10">
+        <br/>
+        <input type="checkbox" id="adjust_bounds" name="adjust_bounds" checked>Update map view to show all matching date points<br/>
+        <br/>
+        <a href="#" onclick="select_all_dates(); return false;">All Dates <span id='all_dates_string'>01/01/2001 - 12/12/2012</span></a>&nbsp;
+        <br/>
+        <a href="#" onclick="select_today(); return false;">Today</a>&nbsp;
+        <br/>
+        <a href="#" onclick="select_7days(); return false;">Past week</a>
+        <br/>
+        <button onclick="update_button_onclick();" >Update</button>
+        <br/>
+        <button onclick="locateme_button_onclick();" >Locate Me!</button>
+        <br/>
+        <button onclick="clearmap_button_onclick();" >Clear Map</button>
+      </form>
+    </div>
   </div>
   <div id="map_info" title="Map Info">
     <p>

@@ -47,6 +47,8 @@ var gProgressBar;
 
 Cookies.set("loaded",1, { expires: 365 });
 
+google.maps.event.addDomListener(window, 'load', initialize);
+
 function initialize() {
   gProgressBar = $( "#progressbar" );
   gProgressBar.progressbar({
@@ -81,6 +83,25 @@ function initialize() {
     success: process_stats_response,
     error: function(xhr) { alert('Error!  Status = ' + xhr.status + '(' + url + ')'); }
   });
+
+  // Create the DIV to hold the control and call the ToggleControlsControl() constructor
+  // passing in this DIV.
+  var toggleControlsControlDiv = document.createElement('div');
+  var toggleControlsControl = new ToggleControlsControl(toggleControlsControlDiv, gMap);
+
+  toggleControlsControlDiv.index = 1;
+  gMap.controls[google.maps.ControlPosition.TOP_CENTER].push(toggleControlsControlDiv);
+
+  // Create the DIV to hold the control and call the LocateMeControl() constructor
+  // passing in this DIV.
+  var locateMeControlDiv = document.createElement('div');
+  var locateMeControl = new LocateMeControl(locateMeControlDiv, gMap);
+
+  locateMeControlDiv.index = 1;
+  gMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(locateMeControlDiv);
+
+
+
 
 }
 
@@ -616,5 +637,78 @@ function draw_visualization(hit_tiles, total_tiles, setsize, bound_string, count
     $("#from").datepicker("setDate",$("#from").datepicker("option","defaultDate"));
     $("#to").datepicker("setDate",$("#to").datepicker("option","defaultDate"));
   });
-google.maps.event.addDomListener(window, 'load', initialize);
+
+/**
+ * The ToggleControlsControl adds a control to the map that toggles the control panel
+ * This constructor takes the control DIV as an argument.
+ * @constructor
+ */
+function ToggleControlsControl(controlDiv, map) {
+
+  // Set CSS for the control border.
+  var controlUI = document.createElement('div');
+  controlUI.style.backgroundColor = '#fff';
+  controlUI.style.border = '2px solid #fff';
+  controlUI.style.borderRadius = '3px';
+  controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+  controlUI.style.cursor = 'pointer';
+  controlUI.style.marginBottom = '22px';
+  controlUI.style.textAlign = 'center';
+  controlUI.title = 'Click to show controls';
+  controlDiv.appendChild(controlUI);
+
+  // Set CSS for the control interior.
+  var controlText = document.createElement('div');
+  controlText.style.color = 'rgb(25,25,25)';
+  controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+  controlText.style.fontSize = '16px';
+  controlText.style.lineHeight = '38px';
+  controlText.style.paddingLeft = '5px';
+  controlText.style.paddingRight = '5px';
+  controlText.innerHTML = 'Toggle Controls';
+  controlUI.appendChild(controlText);
+
+  // Setup the click event listeners: simply set the map to Chicago.
+  controlUI.addEventListener('click', function() {
+    $("#controls").toggle();
+  });
+
+}
+
+/**
+ * The LocateMeControl adds a control to the map that locates the user
+ * This constructor takes the control DIV as an argument.
+ * @constructor
+ */
+function LocateMeControl(controlDiv, map) {
+
+  // Set CSS for the control border.
+  var controlUI = document.createElement('div');
+  controlUI.style.backgroundColor = '#fff';
+  controlUI.style.border = '2px solid #fff';
+  controlUI.style.borderRadius = '3px';
+  controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+  controlUI.style.cursor = 'pointer';
+  controlUI.style.marginBottom = '22px';
+  controlUI.style.textAlign = 'center';
+  controlUI.title = 'Click to show controls';
+  controlDiv.appendChild(controlUI);
+
+  // Set CSS for the control interior.
+  var controlText = document.createElement('div');
+  controlText.style.color = 'rgb(25,25,25)';
+  controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+  controlText.style.fontSize = '16px';
+  controlText.style.lineHeight = '38px';
+  controlText.style.paddingLeft = '5px';
+  controlText.style.paddingRight = '5px';
+  controlText.innerHTML = 'Locate Me';
+  controlUI.appendChild(controlText);
+
+  // Setup the click event listeners: simply set the map to Chicago.
+  controlUI.addEventListener('click', function() {
+      locateme_button_onclick()
+  });
+
+}
 
