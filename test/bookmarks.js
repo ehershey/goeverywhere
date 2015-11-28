@@ -1,0 +1,3 @@
+db.gps_bookmarks.insert({ "_id" : ObjectId("5659c6b949faddda163c448b"), "creation_date" : ISODate("2015-11-28T15:22:33.490Z"), "loc" : { "type" : "Point", "coordinates" : [ -73.949533, 40.687934 ] }, "label" : "First bookmark" });
+db.gps_bookmarks.insert({ "_id" : ObjectId("5659c6dd49faddda163c448c"), "creation_date" : ISODate("2015-11-28T15:23:09.419Z"), "loc" : { "type" : "Point", "coordinates" : [ -73.946292, 40.688227 ] }, "label" : "Second bookmark" });
+db.gps_bookmarks.insert({ "_id" : ObjectId("5659c6f749faddda163c448d"), "creation_date" : ISODate("2015-11-28T15:23:35.922Z"), "loc" : { "type" : "Point", "coordinates" : [ -73.943503, 40.688552 ] }, "label" : "Third bookmark" });
