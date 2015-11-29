@@ -1,5 +1,8 @@
 // defaults
 //
+//
+
+var autoupdate_version = 28;
 
 // good general center
 //
@@ -28,6 +31,7 @@ var bounds_change_timeout_millis = 500;
 var tile_count = 0;
 var heatmap_count = 0;
 var line_count = 0;
+var bookmark_count = 0;
 
 var initial_zoom = default_zoom;
 var initial_center_longitude = default_center_longitude;
@@ -44,6 +48,8 @@ var gMap;
 
 var gProgressBar;
 
+var gInfoWindow = new google.maps.InfoWindow({});
+var gSaveBookmarkControlDiv;
 
 Cookies.set("loaded",1, { expires: 365 });
 
@@ -100,9 +106,16 @@ function initialize() {
   locateMeControlDiv.index = 1;
   gMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(locateMeControlDiv);
 
+  // Create the DIV to hold the control and call the SaveBookmarkControl() constructor
+  // passing in this DIV.
+  var saveBookmarkControlDiv = document.createElement('div');
+  var saveBookmarkControl = new SaveBookmarkControl(saveBookmarkControlDiv, gMap);
 
+  gSaveBookmarkControlDiv = saveBookmarkControlDiv;
 
-
+  saveBookmarkControlDiv.index = 1;
+  gMap.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(saveBookmarkControlDiv);
+  $(gSaveBookmarkControlDiv).hide();
 }
 
 var stats_data;
@@ -187,6 +200,8 @@ function position_handler(position)
 
 var gobjDisplayedTiles = new Object();
 var gobjDisplayedHeatmaps = new Object();
+var gobjDisplayedBookmarks = new Object();
+var gobjDisplayedBookmarkSets = new Object();
 var gobjDisplayedLines = new Object();
 
 function handle_bounds_changed()
@@ -263,6 +278,38 @@ function process_map_display()
   //
 
   clear_map();
+
+  var url = 'get_bookmarks.cgi?';
+  var min_lon = -80;
+  var max_lon = 80;
+  var min_lat = -90;
+  var max_lat = 90;
+
+  url += 'min_lon=' + min_lon;
+  url += '&';
+  url += 'max_lon=' + max_lon;
+  url += '&';
+  url += 'min_lat=' + min_lat;
+  url += '&';
+  url += 'max_lat=' + max_lat;
+  url += '&';
+  url += 'bound_string=' + escape(gMap.getBounds().toString());
+  url += '&';
+  url += 'rind=' + tile_index + "/" + total_tiles;
+  url += '&';
+  url += 'ts=' + (new Date()).getTime();
+
+
+  // $.get( url, null, process_tile_response, "json");
+  $.ajax({
+     dataType: "json",
+     url: url,
+     success: process_bookmark_response,
+     error: function(xhr) { alert('Error!  Status = ' + xhr.status + '(' + url + ')'); }
+   });
+
+
+
 
   var tile_index = 0;
   for(var i = 0 ; i < tiles_across ; i++)
@@ -373,9 +420,64 @@ function clear_map() {
     console.log('line_count..: ' + line_count);
   }
 
+  for(rid in gobjDisplayedBookmarks)
+  {
+    if(gobjDisplayedBookmarks[rid])
+    {
+      gobjDisplayedBookmarks[rid].setMap(null);
+      delete gobjDisplayedBookmarks[rid];
+      bookmark_count--;
+      console.log('bookmark_count--: ' + bookmark_count);
+    }
+    console.log('bookmark_count..: ' + bookmark_count);
+  }
+
+
   $("#map_info_text").html(" ");
   $("#pointer_info").html(" ");
 }
+
+function process_bookmark_response(data,textStatus,xhr)
+{
+  if(am_in_new_view(data.bound_string)) return;
+  increment_progressbar();
+  if(gobjDisplayedBookmarkSets[data.rid]) return;
+  if(!data.count) return;
+  console.log('continuing after new_view check and cache check and count check in process_bookmark_response');
+
+  var points = data.points;
+  for(var i = 0 ; i < points.length ; i++)
+  {
+    var point = points[i];
+    display_bookmark(point);
+}
+  gobjDisplayedBookmarkSets[data.rid] = true;
+}
+
+function display_bookmark(point)
+{
+    var marker = new google.maps.Marker({
+      position: new google.maps.LatLng(point.loc.coordinates[1], point.loc.coordinates[0]),
+      map: gMap,
+      icon: '//maps.google.com/mapfiles/ms/icons/blue-dot.png',
+      title: point.label
+    });
+
+    var contentString = '<div>';
+    contentString += 'Title: ' + point.label + '<br/>';
+    contentString += 'Added: ' + strftime("%D %R",new Date(point.creation_date.$date)) + '<br/>';
+    contentString += '</div>';
+
+    marker.addListener('click', function() {
+      gInfoWindow.setContent(contentString);
+      gInfoWindow.open(gMap, marker);
+    });
+
+    gobjDisplayedBookmarks[gobjDisplayedBookmarks.length] = marker;
+    bookmark_count++;
+
+}
+
 
 function process_tile_response(data,textStatus,xhr)
 {
@@ -488,7 +590,7 @@ function increment_progressbar()
   var increment = 100 / total_tiles;
   var new_value = old_value + increment;
   // console.log("old_value: " + old_value);
-  // console.log("increment: " + increment);
+  console.log("increment: " + increment);
   gProgressBar.progressbar( "value", new_value);
 
   if(new_value >= 98) {
@@ -712,3 +814,71 @@ function LocateMeControl(controlDiv, map) {
 
 }
 
+/**
+ * The SaveBookmarkControl adds a control to the map that locates the user
+ * This constructor takes the control DIV as an argument.
+ * @constructor
+ */
+function SaveBookmarkControl(controlDiv, map) {
+
+  // Set CSS for the control border.
+  var controlUI = document.createElement('div');
+  controlUI.style.backgroundColor = '#fff';
+  controlUI.style.border = '2px solid #fff';
+  controlUI.style.borderRadius = '3px';
+  controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+  controlUI.style.cursor = 'pointer';
+  controlUI.style.marginBottom = '22px';
+  controlUI.style.textAlign = 'center';
+  controlUI.title = 'Click to save bookmark';
+  controlDiv.appendChild(controlUI);
+
+  // Set CSS for the control interior.
+  var controlText = document.createElement('div');
+  controlText.style.color = 'rgb(25,25,25)';
+  controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+  controlText.style.fontSize = '16px';
+  controlText.style.lineHeight = '38px';
+  controlText.style.paddingLeft = '5px';
+  controlText.style.paddingRight = '5px';
+  controlText.innerHTML = 'Save Bookmark';
+  controlUI.appendChild(controlText);
+
+  // Setup the click event listeners: simply set the map to Chicago.
+  controlUI.addEventListener('click', function() {
+      savebookmark_button_onclick()
+  });
+
+}
+
+function addbookmark_button_onclick() {
+    $("#controls").hide();
+    $(gSaveBookmarkControlDiv).show();
+    $("#crosshair").show();
+    $("#crosshair")[0].style.left = ( (document.body.clientWidth / 2) - ($("#crosshair")[0].clientWidth/2) ) + 'px';
+    $("#crosshair")[0].style.top = ( (document.body.clientHeight / 2) - ($("#crosshair")[0].clientHeight/2) ) + 'px';
+}
+function savebookmark_button_onclick() {
+
+  var url = 'save_bookmark.cgi?';
+
+  url += 'lon=' + gMap.getCenter().lng();
+  url += '&';
+  url += 'lat=' + gMap.getCenter().lat();
+
+
+  $.ajax({
+    dataType: "json",
+    url: url,
+    success: process_savebookmark_response,
+    error: function(xhr) { alert('Error!  Status = ' + xhr.status + '(' + url + ')'); }
+  });
+}
+
+function process_savebookmark_response(data,textStatus,xhr) {
+    $("#controls").show();
+    $(gSaveBookmarkControlDiv).hide();
+    $("#crosshair").hide();
+    clear_map();
+    process_map_display()
+}
