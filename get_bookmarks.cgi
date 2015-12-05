@@ -29,13 +29,13 @@ min_lat = form.getfirst('min_lat','')
 max_lon = form.getfirst('max_lon','')
 max_lat = form.getfirst('max_lat','')
 
-if not min_lon: 
+if not min_lon:
   min_lon = -80
-if not min_lat: 
+if not min_lat:
   min_lat = -80
-if not max_lon: 
+if not max_lon:
   max_lon = 80
-if not max_lat: 
+if not max_lat:
   max_lat = 80
 
 # bounds of map displayed when tile info was requested
