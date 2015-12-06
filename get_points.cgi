@@ -15,7 +15,7 @@ CACHE_POSITIVE_AGE = 60 * 60 * 24 * 90
 
 # how long to cache negative responses (places I haven't been)
 #
-CACHE_NEGATIVE_AGE = 60 * 60 
+CACHE_NEGATIVE_AGE = 60 * 60
 
 # minimum time span in milliseconds between points for new point to be included
 
@@ -23,7 +23,7 @@ MINIMUM_POINT_DELTA_MILLIS = 30000
 
 
 logging.basicConfig(level=logging.DEBUG,
-  format='%(relativeCreated)d %(asctime)s %(name)-12s %(levelname)-8s %(message)s', 
+  format='%(relativeCreated)d %(asctime)s %(name)-12s %(levelname)-8s %(message)s',
   #datefmt='%m-%d %H:%M',
   filename='/tmp/get_points.log',
   filemode='a+')
