@@ -13,11 +13,11 @@ CACHE_POSITIVE_AGE = 60 * 60 * 24 * 90
 
 # how long to cache negative responses (places I haven't been)
 #
-CACHE_NEGATIVE_AGE = 60 * 60 
+CACHE_NEGATIVE_AGE = 60 * 60
 
 
 logging.basicConfig(level=logging.DEBUG,
-  format='%(relativeCreated)d %(asctime)s %(name)-12s %(levelname)-8s %(message)s', 
+  format='%(relativeCreated)d %(asctime)s %(name)-12s %(levelname)-8s %(message)s',
   #datefmt='%m-%d %H:%M',
   filename='/tmp/haveibeenhere.log',
   filemode='a+')
