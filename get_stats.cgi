@@ -11,7 +11,7 @@ import time
 import pymongo
 
 logging.basicConfig(level=logging.DEBUG,
-  format='%(relativeCreated)d %(asctime)s %(name)-12s %(levelname)-8s %(message)s', 
+  format='%(relativeCreated)d %(asctime)s %(name)-12s %(levelname)-8s %(message)s',
   #datefmt='%m-%d %H:%M',
   filename='/tmp/get_stats.log',
   filemode='a+')
