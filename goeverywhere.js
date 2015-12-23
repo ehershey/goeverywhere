@@ -882,3 +882,7 @@ function process_savebookmark_response(data,textStatus,xhr) {
     clear_map();
     process_map_display()
 }
+
+shortcut.add("x",function() {
+  $('#controls').toggle();
+});
