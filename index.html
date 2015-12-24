@@ -4,6 +4,7 @@
   <title>Go Everywhere</title>
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <style type="text/css">
+    .shortcut_letter { text-decoration: underline; }
     html { height: 100% }
     body { height: 100%; margin: 0px; padding: 0px }
     #crosshair { z-index: 1; margin: auto; position: absolute;}
@@ -95,7 +96,7 @@
 <body>
   <div id="controls">
     <div id="controls_inner">
-      <button onclick="$('#controls').toggle();" id="controls_xbutton">X</button>
+      <button onclick="$('#controls').toggle();" class="shortcut_letter" id="controls_xbutton">X</button>
       <form onsubmit="return false;">
         <label for="from">From</label>
         <input type="text" id="from" name="from" size="10">
