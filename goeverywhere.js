@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 28;
+var autoupdate_version = 29;
 
 // good general center
 //
