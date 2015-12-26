@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 29;
+var autoupdate_version = 32;
 
 // good general center
 //
@@ -884,5 +884,9 @@ function process_savebookmark_response(data,textStatus,xhr) {
 }
 
 shortcut.add("x",function() {
+  $('#controls').toggle();
+});
+
+shortcut.add("t",function() {
   $('#controls').toggle();
 });
