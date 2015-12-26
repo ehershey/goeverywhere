@@ -767,7 +767,7 @@ function ToggleControlsControl(controlDiv, map) {
   controlText.style.lineHeight = '38px';
   controlText.style.paddingLeft = '5px';
   controlText.style.paddingRight = '5px';
-  controlText.innerHTML = 'Toggle Controls';
+  controlText.innerHTML = '<span class="shortcut_letter">T</span>oggle Controls';
   controlUI.appendChild(controlText);
 
   // Setup the click event listeners: simply set the map to Chicago.
