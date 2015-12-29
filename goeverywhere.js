@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 32;
+var autoupdate_version = 33;
 
 // good general center
 //
@@ -889,4 +889,8 @@ shortcut.add("x",function() {
 
 shortcut.add("t",function() {
   $('#controls').toggle();
+});
+
+shortcut.add("l",function() {
+  locateme_button_onclick();
 });
