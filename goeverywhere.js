@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 33;
+var autoupdate_version = 34;
 
 // good general center
 //
@@ -804,7 +804,7 @@ function LocateMeControl(controlDiv, map) {
   controlText.style.lineHeight = '38px';
   controlText.style.paddingLeft = '5px';
   controlText.style.paddingRight = '5px';
-  controlText.innerHTML = 'Locate Me';
+  controlText.innerHTML = '<span class="shortcut_letter">L</span>ocate Me';
   controlUI.appendChild(controlText);
 
   // Setup the click event listeners: simply set the map to Chicago.
