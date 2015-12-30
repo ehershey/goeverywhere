@@ -894,3 +894,19 @@ shortcut.add("t",function() {
 shortcut.add("l",function() {
   locateme_button_onclick();
 });
+
+shortcut.add("a",function() {
+  addbookmark_button_onclick();
+});
+
+shortcut.add("enter",function() {
+  if($(gSaveBookmarkControlDiv).is(":visible")) {
+    savebookmark_button_onclick();
+  }
+});
+
+shortcut.add("s",function() {
+  if($(gSaveBookmarkControlDiv).is(":visible")) {
+    savebookmark_button_onclick();
+  }
+});
