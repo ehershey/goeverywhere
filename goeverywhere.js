@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 34;
+var autoupdate_version = 38;
 
 // good general center
 //
@@ -841,12 +841,12 @@ function SaveBookmarkControl(controlDiv, map) {
   controlText.style.lineHeight = '38px';
   controlText.style.paddingLeft = '5px';
   controlText.style.paddingRight = '5px';
-  controlText.innerHTML = 'Save Bookmark';
+  controlText.innerHTML = '<span class="shortcut_letter">S</span>ave Bookmark';
   controlUI.appendChild(controlText);
 
   // Setup the click event listeners: simply set the map to Chicago.
   controlUI.addEventListener('click', function() {
-      savebookmark_button_onclick()
+      savebookmark_button_onclick();
   });
 
 }
@@ -880,7 +880,7 @@ function process_savebookmark_response(data,textStatus,xhr) {
     $(gSaveBookmarkControlDiv).hide();
     $("#crosshair").hide();
     clear_map();
-    process_map_display()
+    process_map_display();
 }
 
 shortcut.add("x",function() {
