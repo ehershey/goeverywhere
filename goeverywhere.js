@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 40;
+var autoupdate_version = 41;
 
 // good general center
 //
@@ -809,7 +809,7 @@ function LocateMeControl(controlDiv, map) {
 
   // Setup the click event listeners: simply set the map to Chicago.
   controlUI.addEventListener('click', function() {
-      locateme_button_onclick()
+      locateme_button_onclick();
   });
 
 }
