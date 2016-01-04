@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 39;
+var autoupdate_version = 40;
 
 // good general center
 //
@@ -134,7 +134,7 @@ function select_all_dates() {
   $("#to").val(stats_data.formated_newest_date);
   $("#adjust_bounds").attr('checked', false);
   save_map_state();
-  process_map_display()
+  process_map_display();
 }
 function select_today() {
   $("#from").val($.format.date(new Date(),"MM/dd/yyyy"))
