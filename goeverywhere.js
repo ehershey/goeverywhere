@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 41;
+var autoupdate_version = 42;
 
 // good general center
 //
@@ -137,17 +137,17 @@ function select_all_dates() {
   process_map_display();
 }
 function select_today() {
-  $("#from").val($.format.date(new Date(),"MM/dd/yyyy"))
-  $("#to").val($.format.date(new Date(),"MM/dd/yyyy"))
+  $("#from").val($.format.date(new Date(),"MM/dd/yyyy"));
+  $("#to").val($.format.date(new Date(),"MM/dd/yyyy"));
   save_map_state();
-  process_map_display()
+  process_map_display();
 }
 
 function select_7days() {
-  $("#from").val($.format.date(new Date() - 7 * 24 * 60 * 60 * 1000,"MM/dd/yyyy"))
-  $("#to").val($.format.date(new Date(),"MM/dd/yyyy"))
+  $("#from").val($.format.date(new Date() - 7 * 24 * 60 * 60 * 1000,"MM/dd/yyyy"));
+  $("#to").val($.format.date(new Date(),"MM/dd/yyyy"));
   save_map_state();
-  process_map_display()
+  process_map_display();
 }
 
 
