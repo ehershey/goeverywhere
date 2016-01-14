@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 42;
+var autoupdate_version = 46;
 
 // good general center
 //
@@ -910,3 +910,8 @@ shortcut.add("s",function() {
     savebookmark_button_onclick();
   }
 });
+
+shortcut.add("s",function() {
+  clearmap_button_onclick();
+});
+
