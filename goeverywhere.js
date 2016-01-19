@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 47;
+var autoupdate_version = 48;
 
 // good general center
 //
@@ -883,19 +883,29 @@ function process_savebookmark_response(data,textStatus,xhr) {
     process_map_display();
 }
 
+function blink_shortcut_letter(letter) {
+  var className = "shortcut_letter";
+  $("." + className + ":contains(" + letter.toUpperCase() + ")")
+      .add("." + className + ":contains(" + letter.toLowerCase() + ")")
+      .fadeTo(1,0.1, function() { $(this).fadeTo(200,1); });
+}
 shortcut.add("x",function() {
+  blink_shortcut_letter("X")
   $('#controls').toggle();
 });
 
 shortcut.add("t",function() {
+  blink_shortcut_letter("t")
   $('#controls').toggle();
 });
 
 shortcut.add("l",function() {
+  blink_shortcut_letter("l")
   locateme_button_onclick();
 });
 
 shortcut.add("a",function() {
+  blink_shortcut_letter("a")
   addbookmark_button_onclick();
 });
 
@@ -906,6 +916,7 @@ shortcut.add("enter",function() {
 });
 
 shortcut.add("s",function() {
+  blink_shortcut_letter("s")
   if($(gSaveBookmarkControlDiv).is(":visible")) {
     savebookmark_button_onclick();
   }
