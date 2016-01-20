@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 48;
+var autoupdate_version = 47;
 
 // good general center
 //
@@ -926,6 +926,3 @@ shortcut.add("s",function() {
   clearmap_button_onclick();
 });
 
-shortcut.add("l",function() {
-  select_all_dates();
-});
