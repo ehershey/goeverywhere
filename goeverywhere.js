@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 47;
+var autoupdate_version = 49;
 
 // good general center
 //
@@ -908,6 +908,12 @@ shortcut.add("a",function() {
   blink_shortcut_letter("a")
   addbookmark_button_onclick();
 });
+
+shortcut.add("d",function() {
+  blink_shortcut_letter("d")
+  select_all_dates();
+});
+
 
 shortcut.add("enter",function() {
   if($(gSaveBookmarkControlDiv).is(":visible")) {
