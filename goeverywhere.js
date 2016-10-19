@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 49;
+var autoupdate_version = 50;
 
 // good general center
 //
@@ -125,7 +125,7 @@ function process_stats_response(data, textStatus, xhr) {
   stats_data.newest_date = new Date(data.newest_point_timestamp * 1000);
   stats_data.formated_oldest_date = $.format.date(stats_data.oldest_date,"MM/dd/yyyy") ;
   stats_data.formated_newest_date = $.format.date(stats_data.newest_date,"MM/dd/yyyy") ;
-  $("#all_dates_string").html('(' + stats_data.formated_oldest_date + ' - ' + stats_data.formated_newest_date + ')&nbsp;&nbsp;&nbsp;' + $.number(data.point_count) + ' points');
+  $("#all_dates_string").html('(' + stats_data.formated_oldest_date + ' - ' + stats_data.formated_newest_date + ')<br/>' + $.number(data.point_count) + ' points');
         // <a href="#" onclick="select_all_dates();">All Dates (<span id='all_dates_string'>01/01/2001 - 12/12/2012</span>)</a>
 }
 
