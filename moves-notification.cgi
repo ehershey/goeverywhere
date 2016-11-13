@@ -17,7 +17,7 @@ exec 2>&- # close stderr
 ~ernie/git/utilities/update_moves_csv.sh >> /tmp/update_moves_csv.log 2>&1
 ~ernie/git/utilities/save_myfitnesspal_data.js >> /tmp/save_myfitnesspal_data.log 2>&1
 ~ernie/git/utilities/generate_unit_report.sh >> /tmp/unit_report.log 2>&1
-~ernie/git/utilities/post_year_ago_weight_to_numerous.py >> /tmp/post_year_ago_weight_to_numerous.log 2>&1
+# ~ernie/git/utilities/post_year_ago_weight_to_numerous.py >> /tmp/post_year_ago_weight_to_numerous.log 2>&1
 ) &
 
 
