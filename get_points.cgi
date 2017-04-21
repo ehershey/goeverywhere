@@ -72,7 +72,17 @@ logging.debug("sort_criteria: %s" % json.dumps(sort_criteria, default = json_uti
 count = 0;
 points = []
 last_included_entry_date = None
+min_timestamp = None
+max_timestamp = None
+logging.debug("min_timestamp: %s" % min_timestamp)
+logging.debug("max_timestamp: %s" % max_timestamp)
 for point in gps_log.find(query).sort(sort_criteria):
+  logging.debug("min_timestamp: %s" % min_timestamp)
+  logging.debug("max_timestamp: %s" % max_timestamp)
+  if min_timestamp == None or point['entry_date'] < min_timestamp:
+        min_timestamp = point['entry_date']
+  if max_timestamp == None or point['entry_date'] > max_timestamp:
+        max_timestamp = point['entry_date']
   count = count + 1
   if last_included_entry_date == None or (point['entry_date'] - last_included_entry_date) > min_point_delta:
     points.append(point)
@@ -81,6 +91,8 @@ for point in gps_log.find(query).sort(sort_criteria):
     logging.debug("skipping point because not (%s - %s) > %s / %s > %s", point['entry_date'], last_included_entry_date, min_point_delta, (point['entry_date'] - last_included_entry_date), min_point_delta)
 
 response =  {
+  'min_timestamp': min_timestamp,
+  'max_timestamp': max_timestamp,
   'min_lon': min_lon,
   'min_lat': min_lat,
   'max_lon': max_lon,
