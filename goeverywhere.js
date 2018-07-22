@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 50;
+var autoupdate_version = 61;
 
 // good general center
 //
@@ -12,8 +12,8 @@ var default_zoom = 16;
 
 // how many tiles to divide map into
 //
-var tiles_across = 1;
-var tiles_down = 1;
+var tiles_across = 8;
+var tiles_down = 4;
 
 // Milliseconds between points required to start new tracks
 var NEW_TRACK_GAP_MILLIS = 150000;
@@ -82,7 +82,6 @@ function initialize() {
   }
 
   var url = "get_stats.cgi";
-  // $.get( url, null, process_tile_response, "json");
   $.ajax({
     dataType: "json",
     url: url,
@@ -300,7 +299,6 @@ function process_map_display()
   url += 'ts=' + (new Date()).getTime();
 
 
-  // $.get( url, null, process_tile_response, "json");
   $.ajax({
      dataType: "json",
      url: url,
@@ -370,7 +368,6 @@ function process_map_display()
       url += 'rind=' + tile_index + "/" + total_tiles;
 
 
-      // $.get( url, null, process_tile_response, "json");
       $.ajax({
          dataType: "json",
          url: url,
@@ -530,7 +527,7 @@ function process_tile_response(data,textStatus,xhr)
     tooltip: "A tooltip"
   });
 
-  //tile.setMap(gMap);
+  tile.setMap(gMap);
 
   var points = data.points;
   var heatmapData = [];
