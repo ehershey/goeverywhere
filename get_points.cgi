@@ -60,11 +60,19 @@ to_datetime = to_datetime + datetime.timedelta(1);
 #
 bound_string = form.getfirst('bound_string','')
 
+# optional source filter
+#
+entry_source = form.getfirst('source','')
+
 logging.debug("read form data")
 
 # sql = "SELECT * FROM gps_log WHERE longitude > %s AND longitude < %s AND latitude > %s AND latitude < %s LIMIT 1" \
   # % ( min_lon, max_lon, min_lat, max_lat )
 query = {"loc": {"$geoIntersects": { "$geometry": { "type": "Polygon", "coordinates": [ [ [ float(min_lon), float(min_lat) ], [ float(min_lon), float(max_lat) ], [ float(max_lon), float(max_lat) ], [ float(max_lon), float(min_lat) ], [ float(min_lon), float(min_lat) ] ] ]}}}, "entry_date": {"$gte": from_datetime, "$lt": to_datetime}}
+
+if entry_source:
+    query['entry_source'] = entry_source
+
 sort_criteria = "entry_date"
 logging.debug("query: %s" % json.dumps(query, default = json_util.default))
 logging.debug("sort_criteria: %s" % json.dumps(sort_criteria, default = json_util.default))
