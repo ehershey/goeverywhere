@@ -37,10 +37,19 @@ newest_point_timestamp = time.mktime(newest_point['entry_date'].timetuple())
 
 point_count = gps_log.count()
 
+entry_source_cursor = gps_log.aggregate([{ "$group": { "_id": "$entry_source" } }])
+
+entry_sources = []
+
+for entry_source in entry_source_cursor:
+    entry_sources.append(entry_source['_id'])
+
+
 response =  {
     'oldest_point_timestamp': oldest_point_timestamp,
     'newest_point_timestamp': newest_point_timestamp,
-    'point_count': point_count
+    'point_count': point_count,
+    'entry_sources': entry_sources
 }
 
 
