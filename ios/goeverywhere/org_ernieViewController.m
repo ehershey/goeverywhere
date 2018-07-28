@@ -55,7 +55,7 @@
     GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion:mapView_.projection.visibleRegion];
     
     // Create the request.
-    NSString *url = [NSString stringWithFormat:@"http://goeverywhere.ernie.org/get_points.cgi?from=1/1/2001&to=1/1/2020&min_lon=%@&max_lon=%@&min_lat=%@&max_lat=%@", [NSNumber numberWithDouble:bounds.southWest.longitude], [NSNumber numberWithDouble:bounds.northEast.longitude],  [NSNumber numberWithDouble:bounds.southWest.latitude], [NSNumber numberWithDouble:bounds.northEast.latitude] ];
+    NSString *url = [NSString stringWithFormat:@"https://goeverywhere.ernie.org/get_points.cgi?from=1/1/2001&to=1/1/2020&min_lon=%@&max_lon=%@&min_lat=%@&max_lat=%@", [NSNumber numberWithDouble:bounds.southWest.longitude], [NSNumber numberWithDouble:bounds.northEast.longitude],  [NSNumber numberWithDouble:bounds.southWest.latitude], [NSNumber numberWithDouble:bounds.northEast.latitude] ];
     NSLog(@"makeNewServerRequest() called. url: %@",url);
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
     
