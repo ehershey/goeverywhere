@@ -116,12 +116,12 @@
       <form onsubmit="return false;">
         <label for="from">From</label> <input type="text" id="from" name="from" size="10"> <label for="to">to</label> <input type="text" id="to"
         name="to" size="10"><br>
-        <input type="checkbox" id="adjust_bounds" name="adjust_bounds" checked>Update map view to show all matching date points<br>
+        <input type="checkbox" id="adjust_bounds" name="adjust_bounds" checked><span onclick="$('#adjust_bounds').trigger('click')">U<span class="shortcut_letter">p</span>date map view to show all matching date points</span><br>
         <br>
         <button onclick="select_all_dates();">All <span class="shortcut_letter">D</span>ates</button><br/><span id='all_dates_string'>01/01/2001 - 12/12/2012</span>&nbsp;<br>
         <button onclick="select_today();">Today</button>&nbsp;<br>
         <button onclick="select_7days();">Past week</button><br>
-        <button onclick="update_button_onclick();">Update</button><br>
+        <button onclick="update_button_onclick();"><span class="shortcut_letter">U</span>pdate</button><br>
         <button onclick="locateme_button_onclick();"><span class="shortcut_letter">L</span>ocate Me!</button><br>
         <button onclick="clearmap_button_onclick();"><span class="shortcut_letter">C</span>lear Map</button><br>
         <button onclick="addbookmark_button_onclick();"><span class="shortcut_letter">A</span>dd Bookmark</button>
