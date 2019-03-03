@@ -1,31 +1,67 @@
 #!/bin/bash
 export PYTHONPATH=$PYTHONPATH:/home/ernie/Dropbox/Development/Misc:.::
+LOG=/tmp/moves-notification.log
+
+# HTTP_USER_AGENT=Moves API
+# HTTP_USER_AGENT=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36
+
+if [ "$HTTP_USER_AGENT" = "Moves API" ]
+then
+  LOG=/tmp/moves-notification.log
+else
+  LOG=/dev/stdout
+fi
+exec 2>>$LOG
 
 echo "Content-Type: text/plain"
 echo
 echo "OK"
-echo >> /tmp/moves-notification.log 2>&1
-echo "New Request" >> /tmp/moves-notification.log 2>&1
-echo date: >> /tmp/moves-notification.log 2>&1
-date >> /tmp/moves-notification.log 2>&1
-echo env: >> /tmp/moves-notification.log 2>&1
-env >> /tmp/moves-notification.log 2>&1
-echo cat: >> /tmp/moves-notification.log 2>&1
-cat >> /tmp/moves-notification.log 2>&1
-
-exec 0>&- # close stdin
-exec 1>&- # close stdout
-exec 2>&- # close stderr
+exec 1>>$LOG
+echo
+echo "New Request"
+echo date:
+date
+echo env:
+env
+echo cat:
+cat
 
 
-(
-~ernie/git/utilities/update_moves_summaries.py >> /tmp/update_moves_summaries.log 2>&1
-~ernie/git/utilities/update_moves_csv.sh >> /tmp/update_moves_csv.log 2>&1
-~ernie/git/utilities/save_myfitnesspal_data.js >> /tmp/save_myfitnesspal_data.log 2>&1
-~ernie/git/utilities/generate_unit_report.sh >> /tmp/unit_report.log 2>&1
-# ~ernie/git/utilities/post_year_ago_weight_to_numerous.py >> /tmp/post_year_ago_weight_to_numerous.log 2>&1
-) &
+#exec 0>&- # close stdin
+#exec 1>&- # close stdout
+#exec 2>&- # close stderr
 
+. ~ernie/git/utilities/crontab.env
+export MOVES_ACCESS_TOKEN
+export MARATHON_SPREADSHEET_ID
+export MONGODB_URI
+
+
+scripts="~ernie/git/utilities/update_moves_summaries.sh
+  ~ernie/git/utilities/update_moves_csv.sh
+  ~ernie/git/utilities/generate_unit_report.sh
+"
+# interpolate tildes
+#
+scripts=$(eval echo $scripts)
+
+if [ "$HTTP_USER_AGENT" = "Moves API" ]
+then
+  (
+  for script in $scripts
+  do
+    echo "RUNNING $script"
+    $script
+  done
+  ) &
+else
+  for script in $scripts
+  do
+    date
+    echo "RUNNING $script"
+    $script
+  done
+fi
 
 exec 0>&- # close stdin
 exec 1>&- # close stdout
