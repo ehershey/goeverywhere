@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 61;
+var autoupdate_version = 128;
 
 // good general center
 //
@@ -14,6 +14,11 @@ var default_zoom = 16;
 //
 var tiles_across = 8;
 var tiles_down = 4;
+
+// Mostly for logging
+//
+var total_tiles = tiles_across * tiles_down;
+
 
 // Milliseconds between points required to start new tracks
 var NEW_TRACK_GAP_MILLIS = 150000;
@@ -197,11 +202,11 @@ function position_handler(position)
   }
 }
 
-var gobjDisplayedTiles = new Object();
-var gobjDisplayedHeatmaps = new Object();
-var gobjDisplayedBookmarks = new Object();
-var gobjDisplayedBookmarkSets = new Object();
-var gobjDisplayedLines = new Object();
+var gobjDisplayedTiles = {};
+var gobjDisplayedHeatmaps = {};
+var gobjDisplayedBookmarks = {};
+var gobjDisplayedBookmarkSets = {};
+var gobjDisplayedLines = {};
 
 function handle_bounds_changed()
 {
@@ -218,12 +223,12 @@ function handle_bounds_changed()
       console.log('opting out of processing map display because bounds have changed since original handler call');
     }
 
-  }
+  };
   setTimeout(maybe_process_map_display, bounds_change_timeout_millis);
 }
 
 function update_button_onclick() {
-  process_map_display()
+  process_map_display();
 }
 
 function process_map_display()
@@ -257,8 +262,6 @@ function process_map_display()
   // console.log("southWestLat: " + southWestLat);
   // console.log("southWestLon: " + southWestLon);
 
-  var total_tiles = tiles_across * tiles_down;
-  // console.log("total tiles: " + total_tiles);
 
   var map_lat_diff = northEastLat - southWestLat;
   var map_lon_diff = northEastLon - southWestLon;
@@ -294,7 +297,7 @@ function process_map_display()
   url += '&';
   url += 'bound_string=' + escape(gMap.getBounds().toString());
   url += '&';
-  url += 'rind=' + tile_index + "/" + total_tiles;
+  url += 'rind=1/1';
   url += '&';
   url += 'ts=' + (new Date()).getTime();
 
@@ -306,8 +309,47 @@ function process_map_display()
      error: function(xhr) { alert('Error!  Status = ' + xhr.status + '(' + url + ')'); }
    });
 
+  // get all points on the map, distinct from per-tile requests below
+  //
+  url = 'get_points.cgi?';
 
+  if($("#adjust_bounds")[0].checked) {
+    min_lon = -80;
+    max_lon = 80;
+    min_lat = -90;
+    max_lat = 90;
+  }
+  else
+  {
+    min_lon = northWestLon;
+    max_lon = northEastLon;
+    min_lat = southWestLat;
+    max_lat = northEastLat;
+  }
 
+  url += 'from=' + $("#from").val();
+  url += '&';
+  url += 'to=' + $("#to").val();
+  url += '&';
+  url += 'min_lon=' + min_lon;
+  url += '&';
+  url += 'max_lon=' + max_lon;
+  url += '&';
+  url += 'min_lat=' + min_lat;
+  url += '&';
+  url += 'max_lat=' + max_lat;
+  url += '&';
+  url += 'bound_string=' + escape(gMap.getBounds().toString());
+  url += '&';
+  url += 'rind=1/1';
+  url += '&source=Arc+GPX';
+
+  $.ajax({
+     dataType: "json",
+     url: url,
+     success: process_full_response,
+     error: ajax_error
+   });
 
   var tile_index = 0;
   for(var i = 0 ; i < tiles_across ; i++)
@@ -323,19 +365,15 @@ function process_map_display()
 
     for(var j = 0 ; j < tiles_down ; j++)
     {
-      console.log("processing tile " + ++tile_index + " of " + total_tiles);
+      tile_index++;
+      console.log("processing tile " + tile_index + " of " + total_tiles);
 
       var tile_southWest_lat = southWestLat + (j * tile_lat_diff);
       var tile_northEast_lat = tile_southWest_lat + tile_lat_diff;
 
       var tile_southEast_lat = tile_southWest_lat;
       var tile_northWest_lat = tile_northEast_lat;
-      var url = 'get_points.cgi?';
-
-      var min_lon;
-      var max_lon;
-      var min_lat;
-      var max_lat;
+      url = 'get_points.cgi?';
 
       if($("#adjust_bounds")[0].checked) {
         min_lon = -80;
@@ -366,13 +404,14 @@ function process_map_display()
       url += 'bound_string=' + escape(gMap.getBounds().toString());
       url += '&';
       url += 'rind=' + tile_index + "/" + total_tiles;
+      url += '&source=Arc+GPX';
 
 
       $.ajax({
          dataType: "json",
          url: url,
          success: process_tile_response,
-         error: function(xhr) { alert('Error!  Status = ' + xhr.status + '(' + url + ')'); }
+         error: ajax_error
        });
 
     }
@@ -381,7 +420,7 @@ function process_map_display()
 }
 
 function clear_map() {
-  for(rid in gobjDisplayedTiles)
+  for(var rid in gobjDisplayedTiles)
   {
     if(gobjDisplayedTiles[rid])
     {
@@ -480,7 +519,6 @@ function process_tile_response(data,textStatus,xhr)
 {
   if(am_in_new_view(data.bound_string)) return;
   increment_progressbar();
-  var total_tiles = tiles_across * tiles_down;
   var current_tile_count = tile_count;
   draw_visualization(tile_count, total_tiles, data.setsize, data.bound_string, data.count, data.from, data.to);
   if(gobjDisplayedTiles[data.rid]) return;
@@ -512,8 +550,6 @@ function process_tile_response(data,textStatus,xhr)
     new google.maps.LatLng(tile_southWest_lat, tile_southWest_lon),
   ];
 
-  var bottomCenter = new google.maps.LatLng(tile_southEast_lat, ( data.min_lon + data.max_lon) / 2);
-
   // Construct the polygon
   // Note that we don't specify an array or arrays, but instead just
   // a simple array of LatLngs in the paths property
@@ -524,39 +560,72 @@ function process_tile_response(data,textStatus,xhr)
     strokeWeight: 0,
     fillColor: "#00FF00",
     fillOpacity: 0.25,
-    tooltip: "A tooltip"
+    tooltip: "activity tile"
   });
 
   tile.setMap(gMap);
 
+  google.maps.event.addListener(tile, 'mousemove', function(event) { update_pointer_info(event, current_tile_count+1, data.count); } );
+
+  gobjDisplayedTiles[data.rid] = tile;
+  tile_count++;
+  draw_visualization(tile_count, total_tiles, data.setsize, data.bound_string,0,data.from,data.to);
+}
+
+function process_full_response(data,textStatus,xhr)
+{
+  if(am_in_new_view(data.bound_string)) return;
+  increment_progressbar();
+  if(gobjDisplayedHeatmaps[data.rid]) return;
+  if(gobjDisplayedLines[data.rid]) return;
+  if(!data.count) return;
+  console.log('continuing after new_view check and cache check and count check in process_full_response');
+
+  console.log('data.count: ' + data.count);
+
   var points = data.points;
   var heatmapData = [];
-  var latlngs = []
+  var line;
   var bounds = new google.maps.LatLngBounds();
+
   for(var i = 0 ; i < points.length ; i++)
   {
 
-    // Start new track
+    // Create a new line if none exist or NEW_TRACK_GAP_MILLIS time diff from the last point
     //
-    if(points[i-1] && (points[i].entry_date['$date'] - points[i-1].entry_date['$date']) >= NEW_TRACK_GAP_MILLIS)
+    // Note - assumes returned points are sorted in ascending order by entry_date
+    //
+    if(line_count === 0 || (points[i - 1] && (points[i].entry_date.$date - points[i-1].entry_date.$date) >= NEW_TRACK_GAP_MILLIS))
     {
-      var line = new google.maps.Polyline({
-        path: latlngs,
+      line = new google.maps.Polyline({
         geodesic: true,
         strokeColor: '#FF0000',
         strokeOpacity: 1.0,
         strokeWeight: 2
       });
       line.setMap(gMap);
-      latlngs = [];
-      gobjDisplayedLines[points[i].entry_date['$date']] = line;
+      gobjDisplayedLines[data.rid] = line;
       line_count++;
+      console.log('line_count++: ' + line_count);
     }
+
+    // always create a point
+    //
     point = new google.maps.LatLng(points[i].loc.coordinates[1], points[i].loc.coordinates[0]);
+
+    // always extend the bounds we'll make the map include to include the point
+    //
     bounds.extend(point);
+
+    // always add point to heatmap and line data, but line may get split up via above conditional block
+    //
     heatmapData[heatmapData.length] = point;
-    latlngs[latlngs.length] = point;
+
+    line.getPath().push(point);
   }
+
+  // single heatmap with all points
+  //
   var heatmap = new google.maps.visualization.HeatmapLayer({
     data: heatmapData
   });
@@ -567,19 +636,12 @@ function process_tile_response(data,textStatus,xhr)
   }
 
 
-  google.maps.event.addListener(tile, 'mousemove', function(event) { update_pointer_info(event, current_tile_count+1, data.count); } );
-
-  gobjDisplayedTiles[data.rid] = tile;
   gobjDisplayedHeatmaps[data.rid] = heatmap;
-  tile_count++;
   heatmap_count++;
-  var total_tiles = tiles_across * tiles_down;
-  draw_visualization(tile_count, total_tiles, data.setsize, data.bound_string,0,data.from,data.to);
 }
 
 function increment_progressbar()
 {
-  var total_tiles = tiles_across * tiles_down;
   // consider each response equal progress, so
   // for each, increment progress by 100 / total tiles
   //
@@ -587,7 +649,7 @@ function increment_progressbar()
   var increment = 100 / total_tiles;
   var new_value = old_value + increment;
   // console.log("old_value: " + old_value);
-  console.log("increment: " + increment);
+  // console.log("increment: " + increment);
   gProgressBar.progressbar( "value", new_value);
 
   if(new_value >= 98) {
@@ -683,7 +745,7 @@ function save_map_state()
 
 function update_pointer_info(event, tile_number, hit_count)
 {
-  var s = ''
+  var s = '';
   s += "Cursor latitude: " + event.latLng.lat();
   s += '<br/>';
   s += "Cursor longitude: " + event.latLng.lng();
@@ -790,7 +852,7 @@ function LocateMeControl(controlDiv, map) {
   controlUI.style.cursor = 'pointer';
   controlUI.style.marginBottom = '22px';
   controlUI.style.textAlign = 'center';
-  controlUI.title = 'Click to show controls';
+  controlUI.title = 'Click to show current location';
   controlDiv.appendChild(controlUI);
 
   // Set CSS for the control interior.
@@ -803,6 +865,20 @@ function LocateMeControl(controlDiv, map) {
   controlText.style.paddingRight = '5px';
   controlText.innerHTML = '<span class="shortcut_letter">L</span>ocate Me';
   controlUI.appendChild(controlText);
+
+  // Show autoupdate version
+  var versionText = document.createElement('div');
+  versionText.style.color = 'rgb(25,25,25)';
+  versionText.style.fontFamily = 'Roboto,Arial,sans-serif';
+  versionText.style.fontSize = '16px';
+  versionText.style.lineHeight = '38px';
+  versionText.style.paddingLeft = '5px';
+  versionText.style.paddingRight = '5px';
+  versionText.innerHTML = 'version: ' + autoupdate_version;
+  controlUI.appendChild(versionText);
+
+
+
 
   // Setup the click event listeners: simply set the map to Chicago.
   controlUI.addEventListener('click', function() {
@@ -886,30 +962,46 @@ function blink_shortcut_letter(letter) {
       .add("." + className + ":contains(" + letter.toLowerCase() + ")")
       .fadeTo(1,0.1, function() { $(this).fadeTo(200,1); });
 }
+
+function ajax_error(xhr) { 
+  alert('Error!  Status = ' + xhr.status + '(' + url + ')'); 
+}
+
 shortcut.add("x",function() {
-  blink_shortcut_letter("X")
+  blink_shortcut_letter("X");
   $('#controls').toggle();
 });
 
 shortcut.add("t",function() {
-  blink_shortcut_letter("t")
+  blink_shortcut_letter("t");
   $('#controls').toggle();
 });
 
 shortcut.add("l",function() {
-  blink_shortcut_letter("l")
+  blink_shortcut_letter("l");
   locateme_button_onclick();
 });
 
 shortcut.add("a",function() {
-  blink_shortcut_letter("a")
+  blink_shortcut_letter("a");
   addbookmark_button_onclick();
 });
 
 shortcut.add("d",function() {
-  blink_shortcut_letter("d")
+  blink_shortcut_letter("d");
   select_all_dates();
 });
+
+shortcut.add("u",function() {
+  blink_shortcut_letter("u");
+  update_button_onclick();
+});
+
+shortcut.add("p", function() {
+  blink_shortcut_letter("p");
+  $('#adjust_bounds').trigger('click');
+});
+
 
 
 shortcut.add("enter",function() {
@@ -919,7 +1011,7 @@ shortcut.add("enter",function() {
 });
 
 shortcut.add("s",function() {
-  blink_shortcut_letter("s")
+  blink_shortcut_letter("s");
   if($(gSaveBookmarkControlDiv).is(":visible")) {
     savebookmark_button_onclick();
   }
