@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 129;
+var autoupdate_version = 136;
 
 // good general center
 //
@@ -91,7 +91,7 @@ function initialize() {
     dataType: "json",
     url: url,
     success: process_stats_response,
-    error: function(xhr) { alert('Error!  Status = ' + xhr.status + '(' + url + ')'); }
+    error: ajax_error
   });
 
   // Create the DIV to hold the control and call the ToggleControlsControl() constructor
@@ -306,7 +306,7 @@ function process_map_display()
      dataType: "json",
      url: url,
      success: process_bookmark_response,
-     error: function(xhr) { alert('Error!  Status = ' + xhr.status + '(' + url + ')'); }
+     error: ajax_error
    });
 
   // get all points on the map, distinct from per-tile requests below
@@ -944,7 +944,7 @@ function savebookmark_button_onclick() {
     dataType: "json",
     url: url,
     success: process_savebookmark_response,
-    error: function(xhr) { alert('Error!  Status = ' + xhr.status + '(' + url + ')'); }
+    error: ajax_error
   });
 }
 
@@ -963,8 +963,8 @@ function blink_shortcut_letter(letter) {
       .fadeTo(1,0.1, function() { $(this).fadeTo(200,1); });
 }
 
-function ajax_error(xhr) { 
-  alert('Error!  Status = ' + xhr.status + '(' + url + ')'); 
+function ajax_error(xhr) {
+    alert('Error!  Status = ' + xhr.status + '(' + this.url + ')');
 }
 
 shortcut.add("x",function() {
