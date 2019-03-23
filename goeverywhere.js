@@ -2,7 +2,7 @@
 //
 //
 
-var autoupdate_version = 128;
+var autoupdate_version = 129;
 
 // good general center
 //
@@ -342,7 +342,7 @@ function process_map_display()
   url += 'bound_string=' + escape(gMap.getBounds().toString());
   url += '&';
   url += 'rind=1/1';
-  url += '&source=Arc+GPX';
+  //url += '&source=Arc+GPX';
 
   $.ajax({
      dataType: "json",
@@ -404,7 +404,7 @@ function process_map_display()
       url += 'bound_string=' + escape(gMap.getBounds().toString());
       url += '&';
       url += 'rind=' + tile_index + "/" + total_tiles;
-      url += '&source=Arc+GPX';
+      //url += '&source=Arc+GPX';
 
 
       $.ajax({
