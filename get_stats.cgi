@@ -41,12 +41,7 @@ point_count = gps_log.count()
 
 debug("point_count")
 
-entry_source_cursor = gps_log.aggregate([{ "$group": { "_id": "$entry_source" } }])
-
-entry_sources = []
-
-for entry_source in entry_source_cursor:
-    entry_sources.append(entry_source['_id'])
+entry_sources = gps_log.distinct("entry_source")
 
 debug("entry_sources")
 
