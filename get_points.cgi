@@ -36,13 +36,13 @@ gps_log = db.gps_log
 
 
 form = cgi.FieldStorage()
-min_lon = form.getfirst('min_lon','')
-min_lat = form.getfirst('min_lat','')
-max_lon = form.getfirst('max_lon','')
-max_lat = form.getfirst('max_lat','')
+min_lon = form.getfirst('min_lon',-180)
+min_lat = form.getfirst('min_lat',-85)
+max_lon = form.getfirst('max_lon',180)
+max_lat = form.getfirst('max_lat',85)
 
-from_string = form.getfirst('from','')
-to_string = form.getfirst('to','')
+from_string = form.getfirst('from','1/1/1969')
+to_string = form.getfirst('to','12/31/2069')
 
 from_datetime = datetime.datetime.strptime(from_string, "%m/%d/%Y")
 to_datetime = datetime.datetime.strptime(to_string, "%m/%d/%Y")
@@ -91,7 +91,7 @@ for point in gps_log.find(query).sort(sort_criteria):
     points.append(point)
     last_included_entry_date = point['entry_date']
   else:
-    debug("skipping point because not (%s - %s) > %s / %s > %s", point['entry_date'], last_included_entry_date, min_point_delta, (point['entry_date'] - last_included_entry_date), min_point_delta)
+    debug("skipping point because not (%s - %s) > %s / %s > %s" % ( point['entry_date'], last_included_entry_date, min_point_delta, (point['entry_date'] - last_included_entry_date), min_point_delta))
 
 response =  {
   'min_timestamp': min_timestamp,
