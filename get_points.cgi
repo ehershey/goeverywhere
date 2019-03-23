@@ -1,10 +1,12 @@
 #!/usr/bin/python
+import os
+os.environ['PYTHON_EGG_CACHE'] = "/tmp/goe_egg_cache"
 from bson import json_util
 import cgitb ; cgitb.enable()
 import cgi
 import datetime
 import hashlib
-import logging
+from goelog import debug
 import json
 
 from pymongo import MongoClient
@@ -21,14 +23,7 @@ CACHE_NEGATIVE_AGE = 60 * 60
 
 MINIMUM_POINT_DELTA_MILLIS = 30000
 
-
-logging.basicConfig(level=logging.DEBUG,
-  format='%(relativeCreated)d %(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-  #datefmt='%m-%d %H:%M',
-  filename='/tmp/get_points.log',
-  filemode='a+')
-
-logging.debug("starting")
+debug("starting")
 
 cache_max_age = 0
 
@@ -64,7 +59,7 @@ bound_string = form.getfirst('bound_string','')
 #
 entry_source = form.getfirst('source','')
 
-logging.debug("read form data")
+debug("read form data")
 
 # sql = "SELECT * FROM gps_log WHERE longitude > %s AND longitude < %s AND latitude > %s AND latitude < %s LIMIT 1" \
   # % ( min_lon, max_lon, min_lat, max_lat )
@@ -74,19 +69,19 @@ if entry_source:
     query['entry_source'] = entry_source
 
 sort_criteria = "entry_date"
-logging.debug("query: %s" % json.dumps(query, default = json_util.default))
-logging.debug("sort_criteria: %s" % json.dumps(sort_criteria, default = json_util.default))
+debug("query")
+debug("sort_criteria")
 
 count = 0;
 points = []
 last_included_entry_date = None
 min_timestamp = None
 max_timestamp = None
-logging.debug("min_timestamp: %s" % min_timestamp)
-logging.debug("max_timestamp: %s" % max_timestamp)
+debug("min_timestamp")
+debug("max_timestamp")
 for point in gps_log.find(query).sort(sort_criteria):
-  logging.debug("min_timestamp: %s" % min_timestamp)
-  logging.debug("max_timestamp: %s" % max_timestamp)
+  debug("min_timestamp")
+  debug("max_timestamp")
   if min_timestamp == None or point['entry_date'] < min_timestamp:
         min_timestamp = point['entry_date']
   if max_timestamp == None or point['entry_date'] > max_timestamp:
@@ -96,7 +91,7 @@ for point in gps_log.find(query).sort(sort_criteria):
     points.append(point)
     last_included_entry_date = point['entry_date']
   else:
-    logging.debug("skipping point because not (%s - %s) > %s / %s > %s", point['entry_date'], last_included_entry_date, min_point_delta, (point['entry_date'] - last_included_entry_date), min_point_delta)
+    debug("skipping point because not (%s - %s) > %s / %s > %s", point['entry_date'], last_included_entry_date, min_point_delta, (point['entry_date'] - last_included_entry_date), min_point_delta)
 
 response =  {
   'min_timestamp': min_timestamp,
@@ -117,7 +112,7 @@ response =  {
 
 
 
-logging.debug("executed")
+debug("executed")
 response['count'] = count
 if(count):
   cache_max_age = CACHE_POSITIVE_AGE
@@ -130,6 +125,6 @@ print ""
 
 
 print json.dumps(response, default = json_util.default)
-logging.debug("dumped output")
+debug("dumped output")
 # logging.debug("closed connection")
-logging.debug("ending")
+debug("ending")

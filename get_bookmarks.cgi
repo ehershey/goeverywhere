@@ -1,22 +1,18 @@
 #!/usr/bin/python
+import os
+os.environ['PYTHON_EGG_CACHE'] = "/tmp/goe_egg_cache"
 from bson import json_util
 import cgitb ; cgitb.enable()
 import cgi
 import datetime
 import hashlib
-import logging
 import json
+from goelog import debug
 
 from pymongo import MongoClient
 
 
-logging.basicConfig(level=logging.DEBUG,
-  format='%(relativeCreated)d %(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-  #datefmt='%m-%d %H:%M',
-  filename='/tmp/get_bookmarks.log',
-  filemode='a+')
-
-logging.debug("starting")
+debug("starting")
 
 client = MongoClient()
 db = client.ernie_org
@@ -42,12 +38,12 @@ if not max_lat:
 #
 bound_string = form.getfirst('bound_string','')
 
-logging.debug("read form data")
+debug("read form data")
 
 # sql = "SELECT * FROM gps_log WHERE longitude > %s AND longitude < %s AND latitude > %s AND latitude < %s LIMIT 1" \
   # % ( min_lon, max_lon, min_lat, max_lat )
 query = {"loc": {"$geoIntersects": { "$geometry": { "type": "Polygon", "coordinates": [ [ [ float(min_lon), float(min_lat) ], [ float(min_lon), float(max_lat) ], [ float(max_lon), float(max_lat) ], [ float(max_lon), float(min_lat) ], [ float(min_lon), float(min_lat) ] ] ]}}}}
-logging.debug("query: %s" % json.dumps(query, default = json_util.default))
+debug("query")
 
 count = 0;
 points = []
@@ -71,7 +67,7 @@ response =  {
 
 
 
-logging.debug("executed")
+debug("executed")
 response['count'] = count
 
 print "Content-Type: text/plain"
@@ -79,7 +75,6 @@ print ""
 
 
 print json.dumps(response, default = json_util.default)
-logging.debug("output: {response}".format(response = response))
-logging.debug("dumped output")
-# logging.debug("closed connection")
-logging.debug("ending")
+debug("response")
+debug("dumped output")
+debug("ending")
